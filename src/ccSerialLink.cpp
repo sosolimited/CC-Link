@@ -9,8 +9,10 @@
 #include "ccSerialLink.h"
 
 using namespace ccLink;
+using namespace asio;
+using namespace std;
 
-ccSerialLink::ccSerialLink(){
+ccSerialLink::ccSerialLink( std::shared_ptr<io_service> iService ){
 	
 }
 
@@ -21,32 +23,44 @@ ccSerialLink::~ccSerialLink(){
 
 
 
-void ccSerialLink::fetchSerialData(){
+void ccSerialLink::listenForSerialData(){
 	
 	newChars.clear();
 	
 	//grab all available CC chars -- this could also be the test chars that the device outputs
 	static float ccTimer = 0;
-	while (serial.available() > 0)
-	{
-		unsigned char myByte = serial.readByte();
-		
-		//replace new line with space
-		if ((myByte == 13) || (myByte == 10)) myByte = 32;
-		
-		if ((myByte != 32) || (lastChar != 32))
-		{
-			//PEND: disabling the printf for testing purposes
-			//printf("%c", myByte);
-			newChars.push_back(myByte);
-			lastChar = myByte;
-		}
-		
-		ccTimer = 0; //reset the timer
-		isPDRSetup = true; //we also know it has been propely setup
-		string status = "Serial is active at " + kComPort;
-
-	}
+	
+	// Check if serial is available?
+	
+//	
+//	serial->async_read_some(asio::buffer(),
+//									 [this] (std::error_code ec, std::size_t /*length*/)
+//									 {
+//
+//										 
+//									 }
+	
+											 
+//	while (serial.available() > 0)
+//	{
+//		unsigned char myByte = serial.readByte();
+//		
+//		//replace new line with space
+//		if ((myByte == 13) || (myByte == 10)) myByte = 32;
+//		
+//		if ((myByte != 32) || (lastChar != 32))
+//		{
+//			//PEND: disabling the printf for testing purposes
+//			//printf("%c", myByte);
+//			newChars.push_back(myByte);
+//			lastChar = myByte;
+//		}
+//		
+//		ccTimer = 0; //reset the timer
+//		isPDRSetup = true; //we also know it has been propely setup
+//		string status = "Serial is active at " + kComPort;
+//
+//	}
 	
 }
 
@@ -54,61 +68,64 @@ void ccSerialLink::testPDR(){
 	
 	printf("Testing PDR-870 \n");
 	
-	messageQueue.push_back(1);
-	messageQueue.push_back('?');
+	
+	unsigned char o = 1;
+	
+	std::vector<asio::const_buffer> buffers;
+	buffers.push_back(asio::const_buffer(&o, 1));
+	buffers.push_back(asio::const_buffer("?", 1));
+
+	serial->async_write_some(buffers, [this] (std::error_code ec, std::size_t) {
+		
+		cout << "WROTE TEST BUFF" << endl;
+		
+	});
 	
 }
 
 void ccSerialLink::setupPDR(){
 	
 	printf("Setup PDR-870 \n");
+
 	
-	messageQueue.push_back(1);
-	messageQueue.push_back('@');
-	messageQueue.push_back(1);
-	messageQueue.push_back('A');
-	messageQueue.push_back(1);
-	messageQueue.push_back('M');
+	unsigned char o = 1;
 	
+	
+	std::vector<asio::const_buffer> buffers;
+	buffers.push_back(asio::const_buffer(&o, 1));
+	buffers.push_back(asio::const_buffer("@", 1));
+	buffers.push_back(asio::const_buffer(&o, 1));
+	buffers.push_back(asio::const_buffer("A", 1));
+	buffers.push_back(asio::const_buffer(&o, 1));
+	buffers.push_back(asio::const_buffer("M", 1));
+	
+	
+	serial->async_write_some(buffers, [this] (std::error_code ec, std::size_t) {
+		
+		cout << "WROTE DEM BUFFS" << endl;
+		
+	});
 }
 
-void ccSerialLink::updateMessageQueue(float iElapsed){
+
+
+void ccSerialLink::setup(){
+
+	io_service io;
+	make_shared<serial_port>( io, kComPort );
+	serial->set_option( serial_port_base::baud_rate( 9600 ));
 	
-	static float messageTimer = 0;
-	float messagePeriod = 0.25;
-	
-	messageTimer += iElapsed;
-	if (messageTimer > messagePeriod)
-	{
-		messageTimer = 0;
-		if (messageQueue.size() > 0)
-		{
-			unsigned char c = messageQueue.at(0);
-			serial.writeByte(c);
-			messageQueue.erase(messageQueue.begin());
-		}
+	// Flush it
+	if (serial->is_open()){
+		::tcflush(serial->lowest_layer().native_handle(), TCIOFLUSH);
 	}
 }
 
-void ccSerialLink::setup(string iIPAddress, int iPort){
-	
-	kServerIP = iIPAddress;
-	
-	// Setup Serial Devices
-	serial.listDevices();
-	vector <ofSerialDeviceInfo> deviceList = serial.getDeviceList();
-
-	if (serial.setup(kComPort, 9600))
-	{
-		serial.flush(true, true);
-		printf("Serial is setup \n");
-	}
-}
 
 
 void ccSerialLink::idle( float iTime ){
 	
-	fetchSerialData();
+//	fetchSerialData();
 	
 	//setup the PDR at the start, if we haven't already received chars
 	static float setupTimer = 0;
@@ -135,12 +152,7 @@ void ccSerialLink::idle( float iTime ){
 //			ccTimer = 0;
 //		}
 //	}
-	
-	//send messages over serial, if necessary
-	if (messageQueue.size() > 0)updateMessageQueue(0);
-	
-	
-	
+
 	
 }
 

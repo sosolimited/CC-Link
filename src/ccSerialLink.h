@@ -11,6 +11,7 @@
 #include <string>
 #include "ofSerial.h"
 
+
 #define ASIO_STANDALONE 1
 #include "asio.hpp"
 
@@ -22,34 +23,30 @@ namespace ccLink {
 		
 	public:
 		
-		ccSerialLink();
+		ccSerialLink( std::shared_ptr<asio::io_service> iService );
 		~ccSerialLink();
 		
-		void setup(string iIPAddress, int iSerialPort);
+		void setup();
 		void idle( float dt );
 		
 		bool getIsSerialConnected();
 
 	private:
 
-		void fetchSerialData();
+		void listenForSerialData();
 		void setupPDR();
 		void testPDR();
-		
-		void updateMessageQueue( float iElapsed );
+	
 		
 		std::string kComPort = "/dev/tty.PL2303-000013FA";
 		std::string kServerIP = "198.61.191.97";
 
-		ofSerial serial;
-
+		std::shared_ptr<asio::serial_port> serial;
 		
 		char								lastChar = 0;
 		string							newChars;
 		
 		bool isPDRSetup =	false;
-		
-		vector< unsigned char>			messageQueue;
 		
 	};
 	

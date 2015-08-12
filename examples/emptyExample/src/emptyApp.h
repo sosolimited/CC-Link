@@ -27,6 +27,9 @@ public:
 public:
 
 	std::shared_ptr<ccLink::ccSerialLink> serialLink;
+	
+	
+	std::shared_ptr<asio::io_service> ioService;
  
 };
 
