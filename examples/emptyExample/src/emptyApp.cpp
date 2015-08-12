@@ -6,17 +6,42 @@ using namespace asio;
 
 //--------------------------------------------------------------
 void emptyApp::setup(){
+	
+	// Give io_service work so it keeps running
+	constantWork = make_shared<asio::io_service::work>( ioService );
   
   // Disable the of setupScreen because now each scene has a custom renderer.
   ofDisableSetupScreen();
 	
 
-	ioService = std::make_shared<io_service>();
+	ofSerial s;
+	
+	s.listDevices();
+
 	
 	// Make serial object with io service
-	serialLink = std::make_shared<ccSerialLink>( ioService );
+	serialLink = std::make_shared<ccSerialLink>( ioService, "/dev/tty.usbserial-AL00APKE" );
+	
+	serialLink->addSetupHandler( [this] () {
+		
+		onSerialSetup();
+		
+	});
+}
+
+void emptyApp::onSerialSetup(){
+	
+	ofLogNotice("Device has been setup.  Serial has been initialized.");
+}
+
+void emptyApp::onSerialIdle(){
 	
 }
+
+void emptyApp::onReceivedByte(){
+	
+}
+
 
 void emptyApp::buildOnscreenGraphics(){
 	
@@ -39,13 +64,18 @@ void emptyApp::update(){
 	try {
 		
 		//update
-		ioService->run();
+//		if (ioService.stopped()){
+//			ioService.reset();
+//		}
+		ioService.poll();
+	
+	} catch (exception &e) {
 		
-	} catch (exception e) {
-  
-		cout << "Can't run io service" << endl;
+		ofLogNotice("Exception with io service polling " + ofToString(e.what()));
 		
 	}
+	
+	serialLink->idle( ofGetElapsedTimef() );
 	
 	updateStatusText();
 }

@@ -24,12 +24,18 @@ public:
 	void buildOnscreenGraphics();
 	void updateStatusText();
 	
+	void onSerialSetup();
+	void onSerialIdle();
+	void onReceivedByte();
+	
 public:
 
 	std::shared_ptr<ccLink::ccSerialLink> serialLink;
 	
 	
-	std::shared_ptr<asio::io_service> ioService;
+	asio::io_service ioService;
  
+	std::shared_ptr< asio::io_service::work > constantWork;
+	
 };
 

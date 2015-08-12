@@ -12,8 +12,12 @@ using namespace ccLink;
 using namespace asio;
 using namespace std;
 
-ccSerialLink::ccSerialLink( std::shared_ptr<io_service> iService ){
-	
+ccSerialLink::ccSerialLink( io_service &iService, string iName ) :
+appIOService( iService ),
+kComPort( iName )
+{
+	setup();
+
 }
 
 
@@ -22,45 +26,70 @@ ccSerialLink::~ccSerialLink(){
 }
 
 
+void ccSerialLink::addNewCharHandler(const std::function<void ()> &iFn){
+	
+	newCharHandlers.push_back( iFn );
+}
+
+void ccSerialLink::addSetupHandler(const std::function<void ()> &iFn){
+	
+	setupHandlers.push_back( iFn );
+}
+
+void ccSerialLink::addSerialIdleHandler(const std::function<void ()> &iFn){
+	
+	serialIdleHandlers.push_back( iFn );
+}
+
+
+
+void ccSerialLink::callSetupHandlers(){
+
+	
+	for (auto f : setupHandlers){
+		
+		cout << "Dispatching handler" << endl;
+		appIOService.post( f );
+		
+
+	}
+}
+
+void ccSerialLink::callNewCharHandlers(){
+
+	for (auto f : newCharHandlers){
+		
+		appIOService.post( f );
+	}
+}
+
+void ccSerialLink::callSerialIdleHandlers(){
+	
+	for (auto f : serialIdleHandlers){
+		
+		appIOService.post( f );
+	}
+}
+
 
 void ccSerialLink::listenForSerialData(){
 	
-	newChars.clear();
+	cout << "Listening for serial data" << endl;
 	
-	//grab all available CC chars -- this could also be the test chars that the device outputs
-	static float ccTimer = 0;
+	array<char, 8> buf;
 	
-	// Check if serial is available?
-	
-//	
-//	serial->async_read_some(asio::buffer(),
-//									 [this] (std::error_code ec, std::size_t /*length*/)
-//									 {
-//
-//										 
-//									 }
-	
-											 
-//	while (serial.available() > 0)
-//	{
-//		unsigned char myByte = serial.readByte();
-//		
-//		//replace new line with space
-//		if ((myByte == 13) || (myByte == 10)) myByte = 32;
-//		
-//		if ((myByte != 32) || (lastChar != 32))
-//		{
-//			//PEND: disabling the printf for testing purposes
-//			//printf("%c", myByte);
-//			newChars.push_back(myByte);
-//			lastChar = myByte;
-//		}
-//		
-//		ccTimer = 0; //reset the timer
-//		isPDRSetup = true; //we also know it has been propely setup
-//		string status = "Serial is active at " + kComPort;
-//
-//	}
+	serial->async_read_some(asio::buffer( buf, 8), [this] (std::error_code ec, std::size_t) {
+
+		cout << "got a char" << endl;
+		
+		if (!isPDRSetup){
+			cout << "pdr wasn't good" << endl;
+			isPDRSetup = true;
+		}
+		
+		this->listenForSerialData();
+		
+	});
 	
 }
 
@@ -87,9 +116,7 @@ void ccSerialLink::setupPDR(){
 	
 	printf("Setup PDR-870 \n");
 
-	
 	unsigned char o = 1;
-	
 	
 	std::vector<asio::const_buffer> buffers;
 	buffers.push_back(asio::const_buffer(&o, 1));
@@ -98,25 +125,31 @@ void ccSerialLink::setupPDR(){
 	buffers.push_back(asio::const_buffer("A", 1));
 	buffers.push_back(asio::const_buffer(&o, 1));
 	buffers.push_back(asio::const_buffer("M", 1));
-	
+
 	
 	serial->async_write_some(buffers, [this] (std::error_code ec, std::size_t) {
-		
-		cout << "WROTE DEM BUFFS" << endl;
+		this->isPDRSetup = true;
+		// listen for serial
+		listenForSerialData();
 		
 	});
+
+	callSetupHandlers();
+	
 }
 
 
 
 void ccSerialLink::setup(){
 
-	io_service io;
-	make_shared<serial_port>( io, kComPort );
+	// This also opens the serial port
+	serial = make_shared<serial_port>( appIOService, kComPort );
+
 	serial->set_option( serial_port_base::baud_rate( 9600 ));
-	
 	// Flush it
 	if (serial->is_open()){
+		
+		cout << "Serial port open, flushing buffers." << endl;
 		::tcflush(serial->lowest_layer().native_handle(), TCIOFLUSH);
 	}
 }
@@ -124,36 +157,13 @@ void ccSerialLink::setup(){
 
 
 void ccSerialLink::idle( float iTime ){
-	
-//	fetchSerialData();
-	
-	//setup the PDR at the start, if we haven't already received chars
-	static float setupTimer = 0;
+
 	if (!isPDRSetup)
 	{
-//		setupTimer += elapsed;
-//		if (setupTimer > 2.0)
-//		{
 			printf("\nInitial Setup of PDR-870 \n");
 			setupPDR();
-			isPDRSetup = true;
-//		}
-	}
-	
-	//automatically try to reconnect to PDR if we don't see any CC
-//	if (isPDRSetup)
-//	{
-//		ccTimer += elapsed;
-//		if (ccTimer > 30.0)
-//		{
-//			printf("\n\nERROR No CC: attempting to reconnect \n\n");
-//			serialStatus->setString("No incoming CC in the past 30s");
-//			setupPDR();
-//			ccTimer = 0;
-//		}
-//	}
 
-	
+	}
 }
 
 bool ccSerialLink::getIsSerialConnected(){
