@@ -3,7 +3,7 @@
 #include "ofMain.h"
 #include "ccSerialLink.h"
 
-class emptyApp : public ofBaseApp{
+class serialApp : public ofBaseApp{
   
 public:
   
@@ -24,6 +24,7 @@ public:
 	void buildOnscreenGraphics();
 	void updateStatusText();
 	
+	// Functions to handle serial events
 	void onSerialSetup();
 	void onSerialIdle();
 	void onReceivedChar( char iNewChar );
@@ -35,5 +36,13 @@ public:
 	asio::io_service ioService;
 	std::shared_ptr< asio::io_service::work > constantWork;
 
+	ofTrueTypeFont	arial14;
+	
+	// Number of chars to display onscreen
+	int maxCharBufferSize = 400;
+	
+	// Store chars to display onscreen
+	std::deque<char> charBuffer;
+	
 };
 

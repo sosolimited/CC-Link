@@ -25,20 +25,24 @@ namespace ccLink {
 		~ccSerialLink();
 		
 		void update( float dt );
-		
-		bool getIsSerialConnected();
-		
+	
 		void addNewCharHandler( const std::function<void (char)> &iFn );
 		void addSetupHandler( const std::function<void ()> &iFn );
 		void addSerialIdleHandler( const std::function<void ()> &iFn );
+		void addSerialClosedHandler( const std::function<void ()> &iFn );
 		
-		void setBaudRate(float iBaud);
+		void setBaudRate( float iBaud );
+		void setSerialIdleTimeout( float iSeconds ){ serialTimeout = iSeconds; }
+		
+		bool	getIsSerialConnected();
+		float getSecondsSinceDataReceived(){ return serialTimer; }
 
 	private:
 		
 		void callSetupHandlers();
 		void callNewCharHandlers(char iNewChar);
 		void callSerialIdleHandlers();
+		void callSerialClosedHandlers();
 
 		void listenForSerialData();
 		void setupPDR();
@@ -58,9 +62,11 @@ namespace ccLink {
 		std::vector< const std::function<void ()> >setupHandlers;
 		std::vector< const std::function<void (char)> > newCharHandlers;
 		std::vector< const std::function<void ()> > serialIdleHandlers;
+		std::vector< const std::function<void ()> > serialClosedHandlers;
 		
 		bool calledSetup = false;
 		
+		// Serial information
 		int baudRate = 9600;
 		
 		// Timer information
@@ -68,10 +74,9 @@ namespace ccLink {
 		float serialTimer = 0;
 		float serialTimeout = 30.0f; // In seconds
 		
+		// Information for sending commands to CC box
 		float messagePeriod = 0.25;
 		float messageTimer = 0;
-		
-		
 		
 	};
 	

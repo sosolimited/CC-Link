@@ -1,11 +1,11 @@
-#include "emptyApp.h"
+#include "serialApp.h"
 
 using namespace ccLink;
 using namespace std;
 using namespace asio;
 
 //--------------------------------------------------------------
-void emptyApp::setup(){
+void serialApp::setup(){
 	
 	// Give io_service work so it keeps running
 	// Cinder does this behind the scenes
@@ -24,6 +24,7 @@ void emptyApp::setup(){
 	
 	
 	// Add event handlers
+	// These will be called when different serial events occur
 	serialLink->addSetupHandler( [this] () {
 		
 		onSerialSetup();
@@ -41,39 +42,99 @@ void emptyApp::setup(){
 		onReceivedChar( iNewChar );
 		
 	});
+	
+	buildOnscreenGraphics();
 }
 
-void emptyApp::onSerialSetup(){
+// Serial port has been opened and CC
+// box has been configured to send data
+void serialApp::onSerialSetup(){
 	
 	ofLogNotice("Device has been setup.  Serial has been initialized.");
 }
 
-void emptyApp::onSerialIdle(){
+// Serial has not received data in > 30s
+void serialApp::onSerialIdle(){
 	
 	ofLogNotice("Serial device is idle.");
 }
 
-void emptyApp::onReceivedChar( char iNewChar ){
+// Serial port receives a char
+void serialApp::onReceivedChar( char iNewChar ){
 	
 	cout << iNewChar;
 	
+	charBuffer.push_back( iNewChar );
+	
+	if (charBuffer.size() > maxCharBufferSize){
+		
+		charBuffer.pop_front();
+	}
 }
 
+// Load fonts
+void serialApp::buildOnscreenGraphics(){
 
-void emptyApp::buildOnscreenGraphics(){
-	
+	arial14.load("arial.ttf", 14);
+	arial14.setLineHeight(18.0f);
+	arial14.setLetterSpacing(1.037);
 
-	
+	ofSetColor(0,0,0);
+	arial14.drawString("Status", 50, 50);
 	
 }
 
-void emptyApp::updateStatusText(){
+// Draw a simple status graphic
+void serialApp::updateStatusText(){
 	
+	// Draw status text
+	ofBackground(255,255,255);
+	
+	float startX = 15;
+	float startY = 40;
+	
+	ofSetColor(0,0,0);
+	
+	string status = "Connected";
+	
+	if (!serialLink->getIsSerialConnected()){
+		status = "Disconnected";
+	}
+	
+	arial14.drawString("Serial Status: " + status, startX, startY);
+	
+	startY+=30;
+	arial14.drawString("Time since last received: " + ofToString( serialLink->getSecondsSinceDataReceived(), 2) + " s", startX, startY);
+	
+	// Draw black rect with most
+	// recent chars received
+	ofSetColor(0,0,0);
+	ofFill();
+	
+	startY+=30;
+	ofRect(0, startY, 500,440);
+	startY+=30;
+	
+	// Draw text in white
+	ofSetColor(255,255,255, 255);
+	
+	// Make string from char buffer
+	auto makeString = [this] (std::deque<char> d) {
+		
+		string s = "";
+		for (auto c : d){
+			s+=c;
+		}
+		
+		return s;
+	};
+	
+	arial14.drawString(makeString( charBuffer ), startX, startY);
 	
 }
 
 //--------------------------------------------------------------
-void emptyApp::update(){
+void serialApp::update(){
 	
 	// Elapsed time per frame for all our timers
 	static float current = ofGetElapsedTimef();
@@ -95,64 +156,65 @@ void emptyApp::update(){
 		
 	}
 	
-//	// Call update on the serialLink (to update timers)
+	// Call update on the serialLink (to update timers)
 	serialLink->update( elapsed );
 	
-	updateStatusText();
+	
 }
 
 //--------------------------------------------------------------
-void emptyApp::draw(){
+void serialApp::draw(){
   
 	//Call draw on scene, which initiates the drawing of the root object.
-
+  updateStatusText();
+	
 }
 
 //--------------------------------------------------------------
-void emptyApp::keyPressed  (int key){
-  
-}
-
-//--------------------------------------------------------------
-void emptyApp::keyReleased(int key){
+void serialApp::keyPressed  (int key){
   
 }
 
 //--------------------------------------------------------------
-void emptyApp::mouseMoved(int x, int y ){
+void serialApp::keyReleased(int key){
   
 }
 
 //--------------------------------------------------------------
-void emptyApp::mouseDragged(int x, int y, int button){
+void serialApp::mouseMoved(int x, int y ){
+  
+}
+
+//--------------------------------------------------------------
+void serialApp::mouseDragged(int x, int y, int button){
   
   
 }
 
 //--------------------------------------------------------------
-void emptyApp::mousePressed(int x, int y, int button){
+void serialApp::mousePressed(int x, int y, int button){
   
 }
 
 //--------------------------------------------------------------
-void emptyApp::mouseReleased(int x, int y, int button){
+void serialApp::mouseReleased(int x, int y, int button){
   
   
 }
 
 
 //--------------------------------------------------------------
-void emptyApp::windowResized(int w, int h){
+void serialApp::windowResized(int w, int h){
   
 }
 
 //--------------------------------------------------------------
-void emptyApp::gotMessage(ofMessage msg){
+void serialApp::gotMessage(ofMessage msg){
   
 }
 
 //--------------------------------------------------------------
-void emptyApp::dragEvent(ofDragInfo dragInfo){ 
+void serialApp::dragEvent(ofDragInfo dragInfo){ 
   
 }
 

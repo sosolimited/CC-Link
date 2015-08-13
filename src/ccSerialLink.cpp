@@ -4,7 +4,10 @@
 //
 //  Created by Sosolimited on 8/11/15.
 //
-//
+//  Uses asio::serial to open a serial report and receive data
+//  byte by byte from CC box (Model Link Electronics PDR-870)
+//  Will notify subsribers of important serial events
+
 
 #include "ccSerialLink.h"
 
@@ -51,6 +54,11 @@ void ccSerialLink::addSerialIdleHandler(const std::function<void ()> &iFn){
 	serialIdleHandlers.push_back( iFn );
 }
 
+void ccSerialLink::addSerialClosedHandler(const std::function<void ()> &iFn){
+	
+	serialClosedHandlers.push_back( iFn );
+}
+
 
 void ccSerialLink::callSetupHandlers(){
 
@@ -82,7 +90,15 @@ void ccSerialLink::callSerialIdleHandlers(){
 	}
 }
 
+void ccSerialLink::callSerialClosedHandlers(){
+	
+	for (auto f : serialClosedHandlers){
+		
+		appIOService.post( f );
+	}
+}
 
+// Wait for data to be receievd via serial port
 void ccSerialLink::listenForSerialData(){
 
 	// Making it a shared pointer so it doesn't get deleted!
@@ -118,7 +134,7 @@ void ccSerialLink::listenForSerialData(){
 
 void ccSerialLink::testPDR(){
 	
-	printf("Testing PDR-870 \n");
+	cout << "Testing PDR-870" << endl;
 
 	messageQueue.push_back( 1 );
 	messageQueue.push_back( '?' );
@@ -127,10 +143,8 @@ void ccSerialLink::testPDR(){
 
 void ccSerialLink::setupPDR(){
 	
-	printf("Setup PDR-870 \n");
+	cout << "Setup PDR-870" << endl;
 
-	unsigned char o = 1;
-	
 	messageQueue.push_back( 1 );
 	messageQueue.push_back( '@' );
 	messageQueue.push_back( 1 );
@@ -175,6 +189,10 @@ void ccSerialLink::update( float iDt ){
 	currTime += iDt;
 	serialTimer += iDt;
 	
+	if (!serial->is_open()){
+		
+	}
+	
 	if (serialTimer > serialTimeout){
 		
 		// Attempt to reconnect
@@ -216,6 +234,6 @@ void ccSerialLink::update( float iDt ){
 
 bool ccSerialLink::getIsSerialConnected(){
 	
-	return true;
+	return serial->is_open();
 	
 }
