@@ -26,7 +26,7 @@ ccSerialLink::~ccSerialLink(){
 }
 
 
-void ccSerialLink::addNewCharHandler(const std::function<void ()> &iFn){
+void ccSerialLink::addNewCharHandler(const std::function<void (char)> &iFn){
 	
 	newCharHandlers.push_back( iFn );
 }
@@ -42,24 +42,27 @@ void ccSerialLink::addSerialIdleHandler(const std::function<void ()> &iFn){
 }
 
 
-
 void ccSerialLink::callSetupHandlers(){
 
-	
 	for (auto f : setupHandlers){
-		
-		cout << "Dispatching handler" << endl;
-		appIOService.post( f );
+		appIOService.post( f);
 		
 
 	}
 }
 
-void ccSerialLink::callNewCharHandlers(){
+void ccSerialLink::callNewCharHandlers(char iNewChar){
 
 	for (auto f : newCharHandlers){
 		
-		appIOService.post( f );
+		auto boundFunction = [f, iNewChar] () {
+			
+			f( iNewChar );
+			
+		};
+		
+		
+		appIOService.post( boundFunction );
 	}
 }
 
@@ -74,13 +77,18 @@ void ccSerialLink::callSerialIdleHandlers(){
 
 void ccSerialLink::listenForSerialData(){
 	
-	cout << "Listening for serial data" << endl;
+//	cout << "Listening for serial data" << endl;
 	
-	array<char, 8> buf;
+	enum { max_length = 1024 };
+	char data_[max_length];
 	
-	serial->async_read_some(asio::buffer( buf, 8), [this] (std::error_code ec, std::size_t) {
+	serial->async_read_some(asio::buffer( data_, max_length), [this, data_] (std::error_code ec, std::size_t) {
 
-		cout << "got a char" << endl;
+		if (!ec){
+			
+		}
+		cout << data_ << endl;
+		//cout << "got a char" <<  &buf << endl;
 		
 		if (!isPDRSetup){
 			cout << "pdr wasn't good" << endl;
@@ -96,19 +104,9 @@ void ccSerialLink::listenForSerialData(){
 void ccSerialLink::testPDR(){
 	
 	printf("Testing PDR-870 \n");
-	
-	
-	unsigned char o = 1;
-	
-	std::vector<asio::const_buffer> buffers;
-	buffers.push_back(asio::const_buffer(&o, 1));
-	buffers.push_back(asio::const_buffer("?", 1));
 
-	serial->async_write_some(buffers, [this] (std::error_code ec, std::size_t) {
-		
-		cout << "WROTE TEST BUFF" << endl;
-		
-	});
+	messageQueue.push_back( 1 );
+	messageQueue.push_back( '?' );
 	
 }
 
@@ -118,23 +116,14 @@ void ccSerialLink::setupPDR(){
 
 	unsigned char o = 1;
 	
-	std::vector<asio::const_buffer> buffers;
-	buffers.push_back(asio::const_buffer(&o, 1));
-	buffers.push_back(asio::const_buffer("@", 1));
-	buffers.push_back(asio::const_buffer(&o, 1));
-	buffers.push_back(asio::const_buffer("A", 1));
-	buffers.push_back(asio::const_buffer(&o, 1));
-	buffers.push_back(asio::const_buffer("M", 1));
-
+	messageQueue.push_back( 1 );
+	messageQueue.push_back( '@' );
+	messageQueue.push_back( 1 );
+	messageQueue.push_back( 'A' );
+	messageQueue.push_back( 1 );
+	messageQueue.push_back( 'M' );
 	
-	serial->async_write_some(buffers, [this] (std::error_code ec, std::size_t) {
-		this->isPDRSetup = true;
-		// listen for serial
-		listenForSerialData();
-		
-	});
-
-	callSetupHandlers();
+	isPDRSetup = true;
 	
 }
 
@@ -158,11 +147,42 @@ void ccSerialLink::setup(){
 
 void ccSerialLink::idle( float iTime ){
 
+	float messagePeriod = 0.25;
+	
 	if (!isPDRSetup)
 	{
 			printf("\nInitial Setup of PDR-870 \n");
 			setupPDR();
 
+	}
+	
+	messageTimer += iTime;
+	
+	if (messageTimer > messagePeriod)
+	{
+		messageTimer = 0;
+		if (messageQueue.size() > 0)
+		{
+			unsigned char c = messageQueue.at(0);
+			
+			// Write a message queue.
+			std::vector<asio::const_buffer> buffers;
+			buffers.push_back(asio::const_buffer(&c, 1));
+			
+			serial->write_some( buffers );
+			
+			messageQueue.erase(messageQueue.begin());
+		}
+	}
+	
+	if (isPDRSetup && messageQueue.empty() ){
+	
+		if (!calledSetup){
+		
+			callSetupHandlers();
+			listenForSerialData();
+			calledSetup = true;
+		}
 	}
 }
 
