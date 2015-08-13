@@ -8,23 +8,37 @@ using namespace asio;
 void emptyApp::setup(){
 	
 	// Give io_service work so it keeps running
+	// Cinder does this behind the scenes
 	constantWork = make_shared<asio::io_service::work>( ioService );
-  
-  // Disable the of setupScreen because now each scene has a custom renderer.
-  ofDisableSetupScreen();
-	
 
-	ofSerial s;
-	
-	s.listDevices();
+	// To determine which COM port string to use, it's helpful to list serial devices
+	// Mac format is "/dev/tty.usbserial-AL00APKE"
+	// You can also type "ls /dev/tty.*" in terminal
+	//		ofSerial s;
+	//	s.listDevices();
 
-	
-	// Make serial object with io service
+	// Create serialLink object with io service
+	// An io service lets us do the work in our asynchronous functions
+	// Cinder has a built-in io service
 	serialLink = std::make_shared<ccSerialLink>( ioService, "/dev/tty.usbserial-AL00APKE" );
 	
+	
+	// Add event handlers
 	serialLink->addSetupHandler( [this] () {
 		
 		onSerialSetup();
+		
+	});
+	
+	serialLink->addSerialIdleHandler( [this] () {
+		
+		onSerialIdle();
+		
+	});
+	
+	serialLink->addNewCharHandler( [this] (char iNewChar) {
+		
+		onReceivedChar( iNewChar );
 		
 	});
 }
@@ -36,9 +50,12 @@ void emptyApp::onSerialSetup(){
 
 void emptyApp::onSerialIdle(){
 	
+	ofLogNotice("Serial device is idle.");
 }
 
-void emptyApp::onReceivedByte(){
+void emptyApp::onReceivedChar( char iNewChar ){
+	
+	cout << iNewChar;
 	
 }
 
@@ -57,16 +74,19 @@ void emptyApp::updateStatusText(){
 
 //--------------------------------------------------------------
 void emptyApp::update(){
-  
-	//Update the scene with the current time. This call propagates the idle() call to all objects as well.
-	//Note: If you are capturing frames to create a movie, simply replace ofGetElapsedTimef() with a float variable that you increment by a fixed time interval each frame.
+	
+	// Elapsed time per frame for all our timers
+	static float current = ofGetElapsedTimef();
+	static float past = ofGetElapsedTimef();
+	
+	current = ofGetElapsedTimef();
+	float elapsed = current - past;
+	past = current;
+	
 
+	// Attempt to do any pending work in the ioService
 	try {
-		
-		//update
-//		if (ioService.stopped()){
-//			ioService.reset();
-//		}
+
 		ioService.poll();
 	
 	} catch (exception &e) {
@@ -75,7 +95,8 @@ void emptyApp::update(){
 		
 	}
 	
-	serialLink->idle( ofGetElapsedTimef() );
+//	// Call update on the serialLink (to update timers)
+	serialLink->update( elapsed );
 	
 	updateStatusText();
 }

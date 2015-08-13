@@ -67,7 +67,6 @@
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
 		E017DD3F1B7A511400E1790F /* ccSerialLink.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ccSerialLink.cpp; sourceTree = "<group>"; };
 		E017DD401B7A511400E1790F /* ccSerialLink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccSerialLink.h; sourceTree = "<group>"; };
-		E017DD421B7A548200E1790F /* memoryUtilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = memoryUtilities.h; sourceTree = "<group>"; };
 		E08321E619364057000BD296 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		E08321E819364068000BD296 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		E08321EA19364075000BD296 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -222,7 +221,6 @@
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* emptyApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* emptyApp.h */,
-				E017DD421B7A548200E1790F /* memoryUtilities.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;

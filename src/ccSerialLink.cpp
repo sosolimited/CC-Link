@@ -12,12 +12,22 @@ using namespace ccLink;
 using namespace asio;
 using namespace std;
 
-ccSerialLink::ccSerialLink( io_service &iService, string iName ) :
+ccSerialLink::ccSerialLink( io_service &iService, string iComPort ) :
 appIOService( iService ),
-kComPort( iName )
+comPort( iComPort )
 {
-	setup();
-
+	// Create and open serial port running on io_service
+	serial = make_shared<serial_port>( appIOService, comPort );
+	
+	// Set baud rate, default is 9600
+	serial->set_option( serial_port_base::baud_rate( baudRate ));
+	
+	// Flush serial port's input and output data
+	if (serial->is_open()){
+		
+		cout << "Serial port open, flushing buffers." << endl;
+		::tcflush(serial->lowest_layer().native_handle(), TCIOFLUSH);
+	}
 }
 
 
@@ -47,7 +57,6 @@ void ccSerialLink::callSetupHandlers(){
 	for (auto f : setupHandlers){
 		appIOService.post( f);
 		
-
 	}
 }
 
@@ -60,7 +69,6 @@ void ccSerialLink::callNewCharHandlers(char iNewChar){
 			f( iNewChar );
 			
 		};
-		
 		
 		appIOService.post( boundFunction );
 	}
@@ -76,29 +84,36 @@ void ccSerialLink::callSerialIdleHandlers(){
 
 
 void ccSerialLink::listenForSerialData(){
+
+	// Making it a shared pointer so it doesn't get deleted!
+	auto data = make_shared<char>();
 	
-//	cout << "Listening for serial data" << endl;
-	
-	enum { max_length = 1024 };
-	char data_[max_length];
-	
-	serial->async_read_some(asio::buffer( data_, max_length), [this, data_] (std::error_code ec, std::size_t) {
+	// if we read 1 byte at a time, seems too slow.  we miss data
+	serial->async_read_some(asio::buffer( data.get(), 1), [this, data] (std::error_code ec, std::size_t) {
 
 		if (!ec){
 			
-		}
-		cout << data_ << endl;
-		//cout << "got a char" <<  &buf << endl;
+			callNewCharHandlers( *data );
 		
+
+		// Reset serial timer
+		this->serialTimer = 0;
+		
+		// If we receive serial data, our connection is properly set up
 		if (!isPDRSetup){
-			cout << "pdr wasn't good" << endl;
 			isPDRSetup = true;
 		}
 		
+		}else{
+			
+			cout << "Error receiving serial data " << ec << endl;
+			
+		}
+		
+		// Keep listening for serial data
 		this->listenForSerialData();
 		
 	});
-	
 }
 
 void ccSerialLink::testPDR(){
@@ -127,36 +142,15 @@ void ccSerialLink::setupPDR(){
 	
 }
 
-
-
-void ccSerialLink::setup(){
-
-	// This also opens the serial port
-	serial = make_shared<serial_port>( appIOService, kComPort );
-
-	serial->set_option( serial_port_base::baud_rate( 9600 ));
-	// Flush it
-	if (serial->is_open()){
-		
-		cout << "Serial port open, flushing buffers." << endl;
-		::tcflush(serial->lowest_layer().native_handle(), TCIOFLUSH);
-	}
+void ccSerialLink::setBaudRate(float iBaud){
+	
+	serial->set_option( serial_port_base::baud_rate( iBaud ));
+	
 }
 
-
-
-void ccSerialLink::idle( float iTime ){
-
-	float messagePeriod = 0.25;
+void ccSerialLink::updateMessageQueue(float iDt){
 	
-	if (!isPDRSetup)
-	{
-			printf("\nInitial Setup of PDR-870 \n");
-			setupPDR();
-
-	}
-	
-	messageTimer += iTime;
+	messageTimer += iDt;
 	
 	if (messageTimer > messagePeriod)
 	{
@@ -174,6 +168,40 @@ void ccSerialLink::idle( float iTime ){
 			messageQueue.erase(messageQueue.begin());
 		}
 	}
+}
+
+void ccSerialLink::update( float iDt ){
+
+	currTime += iDt;
+	serialTimer += iDt;
+	
+	if (serialTimer > serialTimeout){
+		
+		// Attempt to reconnect
+		if (messageQueue.empty()){
+			
+			// Call serial timeout
+			callSerialIdleHandlers();
+
+			setupPDR();
+			
+			// Reset timer
+			serialTimer = 0;
+		
+		}
+	}
+	
+	// Don't call setupPDR if we're in the middle of
+	// sending setup messages
+	if (!isPDRSetup && messageQueue.empty())
+	{
+			printf("\nInitial Setup of PDR-870 \n");
+			setupPDR();
+
+	}
+	
+	// Send messages in the queue
+	updateMessageQueue( iDt );
 	
 	if (isPDRSetup && messageQueue.empty() ){
 	

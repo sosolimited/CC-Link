@@ -26,16 +26,14 @@ public:
 	
 	void onSerialSetup();
 	void onSerialIdle();
-	void onReceivedByte();
+	void onReceivedChar( char iNewChar );
 	
 public:
 
 	std::shared_ptr<ccLink::ccSerialLink> serialLink;
-	
-	
+
 	asio::io_service ioService;
- 
 	std::shared_ptr< asio::io_service::work > constantWork;
-	
+
 };
 
