@@ -1,6 +1,6 @@
 #include "serialApp.h"
 
-using namespace ccLink;
+using namespace soso;
 using namespace std;
 using namespace asio;
 

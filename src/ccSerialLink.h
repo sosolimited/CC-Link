@@ -15,7 +15,7 @@
 #define ASIO_STANDALONE 1
 #include "asio.hpp"
 
-namespace ccLink {
+namespace soso {
 
 	class ccSerialLink {
 		
@@ -80,4 +80,4 @@ namespace ccLink {
 		
 	};
 	
-} // namespace ccLink
+} // namespace soso

@@ -31,7 +31,7 @@ public:
 	
 public:
 
-	std::shared_ptr<ccLink::ccSerialLink> serialLink;
+	std::shared_ptr<soso::ccSerialLink> serialLink;
 
 	asio::io_service ioService;
 	std::shared_ptr< asio::io_service::work > constantWork;
