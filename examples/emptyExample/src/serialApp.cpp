@@ -11,17 +11,10 @@ void serialApp::setup(){
 	// Cinder does this behind the scenes
 	constantWork = make_shared<asio::io_service::work>( ioService );
 
-	// To determine which COM port string to use, it's helpful to list serial devices
-	// Mac format is "/dev/tty.usbserial-AL00APKE"
-	// You can also type "ls /dev/tty.*" in terminal
-	//		ofSerial s;
-	//	s.listDevices();
-
 	// Create serialLink object with io service
 	// An io service lets us do the work in our asynchronous functions
 	// Cinder has a built-in io service
 	serialLink = std::make_shared<ccSerialLink>( ioService, "/dev/tty.usbserial-AL00APKE" );
-	
 	
 	// Add event handlers
 	// These will be called when different serial events occur
