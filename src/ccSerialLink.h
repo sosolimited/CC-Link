@@ -21,7 +21,7 @@ namespace soso {
 		
 	public:
 		
-		ccSerialLink( asio::io_service &iService, string iComPort );
+		ccSerialLink( asio::io_service &iService, const std::string &iComPort );
 		~ccSerialLink();
 		
 		void update( float dt );
