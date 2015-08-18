@@ -41,7 +41,7 @@ ccSerialLink::~ccSerialLink(){
 
 
 void ccSerialLink::addNewCharHandler(const std::function<void (char)> &iFn){
-	
+
 	newCharHandlers.push_back( iFn );
 }
 
