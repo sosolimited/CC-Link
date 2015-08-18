@@ -16,20 +16,16 @@ using namespace soso;
 using namespace asio;
 using namespace std;
 
-ccSerialLink::ccSerialLink( io_service &iService, const string &iComPort ) :
+ccSerialLink::ccSerialLink( io_service &iService, const string &iComPort, int iBaudRate ) :
 appIOService( iService ),
-comPort( iComPort )
+comPort( iComPort ),
+baudRate( iBaudRate )
 {
-	// Create and open serial port running on io_service
 	serial = make_shared<serial_port>( appIOService, comPort );
+	serial->set_option( serial_port_base::baud_rate( baudRate ) );
 	
-	// Set baud rate, default is 9600
-	serial->set_option( serial_port_base::baud_rate( baudRate ));
-	
-	// Flush serial port's input and output data
 	if (serial->is_open()){
-		
-		cout << "Serial port open, flushing buffers." << endl;
+		// Flush serial port's input and output data
 		::tcflush(serial->lowest_layer().native_handle(), TCIOFLUSH);
 	}
 }
@@ -154,12 +150,6 @@ void ccSerialLink::setupPDR(){
 	messageQueue.push_back( 'M' );
 	
 	isPDRSetup = true;
-	
-}
-
-void ccSerialLink::setBaudRate(float iBaud){
-	
-	serial->set_option( serial_port_base::baud_rate( iBaud ));
 	
 }
 

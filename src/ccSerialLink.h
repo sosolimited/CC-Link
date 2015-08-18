@@ -23,7 +23,7 @@ namespace soso {
 
 class ccSerialLink {
 public:
-	ccSerialLink( asio::io_service &iService, const std::string &iComPort );
+	ccSerialLink( asio::io_service &iService, const std::string &iComPort, int iBaudRate=9600 );
 	~ccSerialLink();
 
 	void update( float dt );
@@ -33,7 +33,6 @@ public:
 	void addSerialIdleHandler( const std::function<void ()> &iFn );
 	void addSerialClosedHandler( const std::function<void ()> &iFn );
 
-	void setBaudRate( float iBaud );
 	void setSerialIdleTimeout( float iSeconds ){ serialTimeout = iSeconds; }
 
 	bool	getIsSerialConnected();

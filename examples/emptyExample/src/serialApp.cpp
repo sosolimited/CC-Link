@@ -14,7 +14,8 @@ void serialApp::setup(){
 	// Create serialLink object with io service
 	// An io service lets us do the work in our asynchronous functions
 	// Cinder has a built-in io service
-	serialLink = std::make_shared<ccSerialLink>( ioService, "/dev/tty.usbserial-AL00APKE" );
+	serialLink = std::make_shared<ccSerialLink>( ioService, "/dev/tty.usbserial-AL00APKE", 14400 );
+	serialLink = std::make_shared<ccSerialLink>( ioService, "/dev/tty.usbserial-AL00APKE", 9600 );
 	
 	// Add event handlers
 	// These will be called when different serial events occur
