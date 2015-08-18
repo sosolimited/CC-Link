@@ -55,8 +55,7 @@ void ccSerialLink::addSerialClosedHandler(const std::function<void ()> &iFn){
 void ccSerialLink::callSetupHandlers(){
 
 	for (auto f : setupHandlers){
-		appIOService.post( f);
-		
+		appIOService.post( f );
 	}
 }
 
@@ -170,10 +169,15 @@ void ccSerialLink::updateMessageQueue(float iDt){
 	}
 }
 
-void ccSerialLink::update( float iDt ){
+void ccSerialLink::update(){
+	auto now = std::chrono::high_resolution_clock::now();
+	auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now - previousUpdateTime).count();
+	previousUpdateTime = now;
 
-	currTime += iDt;
-	serialTimer += iDt;
+	auto dt = millis / 1000.0f;
+
+	currTime += dt;
+	serialTimer += dt;
 	
 	if (!serial->is_open()){
 		
@@ -205,7 +209,7 @@ void ccSerialLink::update( float iDt ){
 	}
 	
 	// Send messages in the queue
-	updateMessageQueue( iDt );
+	updateMessageQueue( dt );
 	
 	if (isPDRSetup && messageQueue.empty() ){
 	

@@ -128,16 +128,9 @@ void serialApp::updateStatusText(){
 }
 
 //--------------------------------------------------------------
-void serialApp::update(){
-	
-	// Elapsed time per frame for all our timers
-	static float current = ofGetElapsedTimef();
-	static float past = ofGetElapsedTimef();
-	
-	current = ofGetElapsedTimef();
-	float elapsed = current - past;
-	past = current;
-	
+void serialApp::update() {
+
+	serialLink->update();
 
 	// Attempt to do any pending work in the ioService
 	try {
@@ -149,11 +142,6 @@ void serialApp::update(){
 		ofLogNotice("Exception with io service polling " + ofToString(e.what()));
 		
 	}
-	
-	// Call update on the serialLink (to update timers)
-	serialLink->update( elapsed );
-	
-	
 }
 
 //--------------------------------------------------------------

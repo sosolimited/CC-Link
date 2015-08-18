@@ -21,12 +21,10 @@
 
 namespace soso {
 
-class ccSerialLink {
+class ccSerialLink : public std::enable_shared_from_this<ccSerialLink> {
 public:
 	ccSerialLink( asio::io_service &iService, const std::string &iComPort, int iBaudRate=9600 );
 	~ccSerialLink() = default;
-
-	void update( float dt );
 
 	void addNewCharHandler( const std::function<void (char)> &iFn );
 	void addSetupHandler( const std::function<void ()> &iFn );
@@ -38,8 +36,9 @@ public:
 	bool	getIsSerialConnected();
 	float getSecondsSinceDataReceived(){ return serialTimer; }
 
-private:
+	void update();
 
+private:
 	void callSetupHandlers();
 	void callNewCharHandlers(char iNewChar);
 	void callSerialIdleHandlers();
@@ -77,6 +76,8 @@ private:
 	// Information for sending commands to CC box
 	float messagePeriod = 0.25;
 	float messageTimer = 0;
+
+	std::chrono::high_resolution_clock::time_point previousUpdateTime;
 };
 
 } // namespace soso
