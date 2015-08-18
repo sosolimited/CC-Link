@@ -23,9 +23,10 @@ baudRate( iBaudRate )
 {
 	serial = make_shared<serial_port>( appIOService, comPort );
 	serial->set_option( serial_port_base::baud_rate( baudRate ) );
-	
+
 	if (serial->is_open()){
 		// Flush serial port's input and output data
+		// Gets rid of any data left over in serial buffer from previous sessions.
 		::tcflush(serial->lowest_layer().native_handle(), TCIOFLUSH);
 	}
 }
