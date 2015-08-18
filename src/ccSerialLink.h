@@ -9,11 +9,15 @@
 #pragma once
 
 #include <string>
-#include "ofSerial.h"
 
-// Using non-Boost ASIO
-#define ASIO_STANDALONE 1
-#include "asio.hpp"
+#ifdef CINDER_CINDER
+	#include "asio/asio.hpp"
+#else
+	// Using non-Boost ASIO
+	#define ASIO_STANDALONE 1
+	#include "asio.hpp"
+#endif
+
 
 namespace soso {
 
