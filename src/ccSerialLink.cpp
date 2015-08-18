@@ -10,6 +10,7 @@
 
 
 #include "ccSerialLink.h"
+#include <iostream>
 
 using namespace soso;
 using namespace asio;
