@@ -24,7 +24,7 @@ namespace soso {
 class ccSerialLink {
 public:
 	ccSerialLink( asio::io_service &iService, const std::string &iComPort, int iBaudRate=9600 );
-	~ccSerialLink();
+	~ccSerialLink() = default;
 
 	void update( float dt );
 
