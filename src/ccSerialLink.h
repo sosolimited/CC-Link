@@ -9,11 +9,15 @@
 #pragma once
 
 #include <string>
-#include "ofSerial.h"
 
-// Using non-Boost ASIO
-#define ASIO_STANDALONE 1
-#include "asio.hpp"
+#ifdef CINDER_CINDER
+	#include "asio/asio.hpp"
+#else
+	// Using non-Boost ASIO
+	#define ASIO_STANDALONE 1
+	#include "asio.hpp"
+#endif
+
 
 namespace soso {
 
@@ -21,7 +25,7 @@ namespace soso {
 		
 	public:
 		
-		ccSerialLink( asio::io_service &iService, string iComPort );
+		ccSerialLink( asio::io_service &iService, const std::string &iComPort );
 		~ccSerialLink();
 		
 		void update( float dt );

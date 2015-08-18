@@ -10,12 +10,13 @@
 
 
 #include "ccSerialLink.h"
+#include <iostream>
 
 using namespace soso;
 using namespace asio;
 using namespace std;
 
-ccSerialLink::ccSerialLink( io_service &iService, string iComPort ) :
+ccSerialLink::ccSerialLink( io_service &iService, const string &iComPort ) :
 appIOService( iService ),
 comPort( iComPort )
 {
