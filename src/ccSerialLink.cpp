@@ -16,32 +16,23 @@ using namespace soso;
 using namespace asio;
 using namespace std;
 
-ccSerialLink::ccSerialLink( io_service &iService, const string &iComPort ) :
+ccSerialLink::ccSerialLink( io_service &iService, const string &iComPort, int iBaudRate ) :
 appIOService( iService ),
-comPort( iComPort )
+comPort( iComPort ),
+baudRate( iBaudRate )
 {
-	// Create and open serial port running on io_service
 	serial = make_shared<serial_port>( appIOService, comPort );
-	
-	// Set baud rate, default is 9600
-	serial->set_option( serial_port_base::baud_rate( baudRate ));
-	
-	// Flush serial port's input and output data
+	serial->set_option( serial_port_base::baud_rate( baudRate ) );
+
 	if (serial->is_open()){
-		
-		cout << "Serial port open, flushing buffers." << endl;
+		// Flush serial port's input and output data
+		// Gets rid of any data left over in serial buffer from previous sessions.
 		::tcflush(serial->lowest_layer().native_handle(), TCIOFLUSH);
 	}
 }
 
-
-ccSerialLink::~ccSerialLink(){
-	
-}
-
-
 void ccSerialLink::addNewCharHandler(const std::function<void (char)> &iFn){
-	
+
 	newCharHandlers.push_back( iFn );
 }
 
@@ -64,8 +55,7 @@ void ccSerialLink::addSerialClosedHandler(const std::function<void ()> &iFn){
 void ccSerialLink::callSetupHandlers(){
 
 	for (auto f : setupHandlers){
-		appIOService.post( f);
-		
+		appIOService.post( f );
 	}
 }
 
@@ -157,12 +147,6 @@ void ccSerialLink::setupPDR(){
 	
 }
 
-void ccSerialLink::setBaudRate(float iBaud){
-	
-	serial->set_option( serial_port_base::baud_rate( iBaud ));
-	
-}
-
 void ccSerialLink::updateMessageQueue(float iDt){
 	
 	messageTimer += iDt;
@@ -185,10 +169,15 @@ void ccSerialLink::updateMessageQueue(float iDt){
 	}
 }
 
-void ccSerialLink::update( float iDt ){
+void ccSerialLink::update(){
+	auto now = std::chrono::high_resolution_clock::now();
+	auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(now - previousUpdateTime).count();
+	previousUpdateTime = now;
 
-	currTime += iDt;
-	serialTimer += iDt;
+	auto dt = millis / 1000.0f;
+
+	currTime += dt;
+	serialTimer += dt;
 	
 	if (!serial->is_open()){
 		
@@ -220,7 +209,7 @@ void ccSerialLink::update( float iDt ){
 	}
 	
 	// Send messages in the queue
-	updateMessageQueue( iDt );
+	updateMessageQueue( dt );
 	
 	if (isPDRSetup && messageQueue.empty() ){
 	
