@@ -136,6 +136,7 @@ void ccSerialLink::setupPDR(){
 	
 	cout << "Setup PDR-870" << endl;
 
+	/// TODO: Document what these codes are/where they come from.
 	messageQueue.push_back( 1 );
 	messageQueue.push_back( '@' );
 	messageQueue.push_back( 1 );
