@@ -94,32 +94,30 @@ void ccSerialLink::listenForSerialData(){
 
 	// Making it a shared pointer so it doesn't get deleted!
 	auto data = make_shared<char>();
-	
+
 	// if we read 1 byte at a time, seems too slow.  we miss data
-	serial->async_read_some(asio::buffer( data.get(), 1), [this, data] (std::error_code ec, std::size_t) {
+	serial->async_read_some(asio::buffer(data.get(), 1), [this, data] (std::error_code ec, std::size_t bytes_read) {
 
-		if (!ec){
-			
+		if (!ec)
+		{
 			callNewCharHandlers( *data );
-		
 
-		// Reset serial timer
-		this->serialTimer = 0;
-		
-		// If we receive serial data, our connection is properly set up
-		if (!isPDRSetup){
-			isPDRSetup = true;
+			// Reset serial timer
+			this->serialTimer = 0;
+
+			// If we receive serial data, our connection is properly set up
+			if (!isPDRSetup)
+			{
+				isPDRSetup = true;
+			}
 		}
-		
-		}else{
-			
-			cout << "Error receiving serial data " << ec << endl;
-			
+		else
+		{
+			cout << "Error receiving serial data " << ec.message() << endl;
 		}
-		
+
 		// Keep listening for serial data
 		this->listenForSerialData();
-		
 	});
 }
 
