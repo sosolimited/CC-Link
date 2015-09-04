@@ -102,6 +102,9 @@ void ccSerialLink::listenForSerialData(){
 				callNewCharHandlers( _serial_data.at(i) );
 			}
 
+			auto string_data = _leftover_string_data + string(_serial_data.begin(), _serial_data.begin() + bytes_read);
+			cout << "Data received: " << string_data << endl;
+
 			// Reset serial timer
 			this->serialTimer = 0;
 

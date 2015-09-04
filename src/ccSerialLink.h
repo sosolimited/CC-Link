@@ -78,6 +78,7 @@ private:
 	float messageTimer = 0;
 
 	std::array<char, 512> _serial_data;
+	std::string						_leftover_string_data;
 
 	std::chrono::high_resolution_clock::time_point previousUpdateTime;
 };
