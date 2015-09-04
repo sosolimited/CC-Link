@@ -113,7 +113,6 @@ void ccSerialLink::listenForSerialData(){
 				if (! w.empty())
 				{
 					_signal_new_word.emit(tokens.at(i));
-					cout << "Word: " << tokens.at(i) << endl;
 				}
 			}
 			_leftover_string_data = tokens.back();
