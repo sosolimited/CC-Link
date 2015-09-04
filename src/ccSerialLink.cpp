@@ -104,7 +104,7 @@ void ccSerialLink::listenForSerialData(){
 			}
 
 			auto string_data = _leftover_string_data + string(_serial_data.begin(), _serial_data.begin() + bytes_read);
-			auto separators = " \b\r\n\t\v\f\a.,;:…\0[](){}";
+			auto separators = " \b\r\n\t\v\f\a.,;:…\0[](){}<>!?";
 			auto tokens = ci::split(string_data, separators);
 
 			for (auto i = 0; i < tokens.size() - 1; i += 1)
