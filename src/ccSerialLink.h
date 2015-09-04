@@ -77,6 +77,8 @@ private:
 	float messagePeriod = 0.25;
 	float messageTimer = 0;
 
+	std::array<char, 512> _serial_data;
+
 	std::chrono::high_resolution_clock::time_point previousUpdateTime;
 };
 
