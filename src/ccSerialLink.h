@@ -12,6 +12,7 @@
 
 #ifdef CINDER_CINDER
 	#include "asio/asio.hpp"
+	#include "cinder/Signals.h"
 #else
 	// Using non-Boost ASIO
 	#define ASIO_STANDALONE 1
@@ -35,6 +36,9 @@ public:
 
 	bool	getIsSerialConnected();
 	float getSecondsSinceDataReceived(){ return serialTimer; }
+
+	/// Returns the signal emitted when a new word is found.
+	auto& getSignalNewWord() { return _signal_new_word; }
 
 	void update();
 
@@ -62,6 +66,9 @@ private:
 	std::vector< const std::function<void (char)> > newCharHandlers;
 	std::vector< const std::function<void ()> > serialIdleHandlers;
 	std::vector< const std::function<void ()> > serialClosedHandlers;
+
+
+	ci::signals::Signal<void (const std::string &)>	_signal_new_word;
 
 	bool calledSetup = false;
 

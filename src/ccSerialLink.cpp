@@ -11,6 +11,7 @@
 
 #include "ccSerialLink.h"
 #include <iostream>
+#include "cinder/Utilities.h"
 
 using namespace soso;
 using namespace asio;
@@ -103,7 +104,20 @@ void ccSerialLink::listenForSerialData(){
 			}
 
 			auto string_data = _leftover_string_data + string(_serial_data.begin(), _serial_data.begin() + bytes_read);
-			cout << "Data received: " << string_data << endl;
+			auto separators = " \b\r\n\t\v\f\a.,;:…\0[](){}";
+			auto tokens = ci::split(string_data, separators);
+
+			for (auto i = 0; i < tokens.size() - 1; i += 1)
+			{
+				auto &w = tokens.at(i);
+				if (! w.empty())
+				{
+					_signal_new_word.emit(tokens.at(i));
+					cout << "Word: " << tokens.at(i) << endl;
+				}
+			}
+			_leftover_string_data = tokens.back();
+
 
 			// Reset serial timer
 			this->serialTimer = 0;
