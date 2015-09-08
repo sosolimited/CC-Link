@@ -21,7 +21,7 @@
 		9C68DA961B9F7DC400E58DC6 /* CCLinkTestApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C68DA931B9F7DC400E58DC6 /* CCLinkTestApp.cpp */; };
 		9C68DA991B9F7DC400E58DC6 /* CCLink_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C68DA951B9F7DC400E58DC6 /* CCLink_tests.cpp */; };
 		9C68DA9F1B9F819800E58DC6 /* ccSerialLink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C68DA9B1B9F819800E58DC6 /* ccSerialLink.cpp */; };
-		9C68DAA01B9F819800E58DC6 /* ccSerialLink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C68DA9B1B9F819800E58DC6 /* ccSerialLink.cpp */; };
+		9C68DAA41B9F8BD300E58DC6 /* StringManipulation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C68DAA21B9F8BD300E58DC6 /* StringManipulation.cpp */; };
 		C92DF15F91D34281B2A14CEC /* CinderApp.icns in Resources */ = {isa = PBXBuildFile; fileRef = A97F25BA220B4172915C0A75 /* CinderApp.icns */; };
 /* End PBXBuildFile section */
 
@@ -29,7 +29,7 @@
 		9C68DA891B9F7D3600E58DC6 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
+			dstPath = /usr/share/man/man1;
 			dstSubfolderSpec = 0;
 			files = (
 			);
@@ -61,6 +61,9 @@
 		9C68DA9C1B9F819800E58DC6 /* ccSerialLink.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccSerialLink.h; sourceTree = "<group>"; };
 		9C68DA9D1B9F819800E58DC6 /* ClosedCaptionConversions.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ClosedCaptionConversions.hpp; sourceTree = "<group>"; };
 		9C68DA9E1B9F819800E58DC6 /* ControlCodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControlCodes.h; sourceTree = "<group>"; };
+		9C68DAA11B9F8AF000E58DC6 /* closed_captioning.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = closed_captioning.txt; path = ../assets/closed_captioning.txt; sourceTree = "<group>"; };
+		9C68DAA21B9F8BD300E58DC6 /* StringManipulation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringManipulation.cpp; sourceTree = "<group>"; };
+		9C68DAA31B9F8BD300E58DC6 /* StringManipulation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringManipulation.h; sourceTree = "<group>"; };
 		A97F25BA220B4172915C0A75 /* CinderApp.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = CinderApp.icns; path = ../resources/CinderApp.icns; sourceTree = "<group>"; };
 		F4D5542AAFA345D8B7D4419C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -163,6 +166,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				9C68DAA11B9F8AF000E58DC6 /* closed_captioning.txt */,
 				A97F25BA220B4172915C0A75 /* CinderApp.icns */,
 				F4D5542AAFA345D8B7D4419C /* Info.plist */,
 			);
@@ -203,6 +207,8 @@
 				9C68DA9C1B9F819800E58DC6 /* ccSerialLink.h */,
 				9C68DA9D1B9F819800E58DC6 /* ClosedCaptionConversions.hpp */,
 				9C68DA9E1B9F819800E58DC6 /* ControlCodes.h */,
+				9C68DAA21B9F8BD300E58DC6 /* StringManipulation.cpp */,
+				9C68DAA31B9F8BD300E58DC6 /* StringManipulation.h */,
 			);
 			name = link;
 			path = ../../../src/link;
@@ -304,7 +310,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9C68DA991B9F7DC400E58DC6 /* CCLink_tests.cpp in Sources */,
-				9C68DAA01B9F819800E58DC6 /* ccSerialLink.cpp in Sources */,
+				9C68DAA41B9F8BD300E58DC6 /* StringManipulation.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
