@@ -31,9 +31,9 @@ void CCLinkTestApp::setup()
 	_serialLink = std::make_shared<ccSerialLink>( io_service(), "/dev/tty.usbserial-AL00APKE", 9600 );
 
 
-	_serialLink->addNewCharHandler( [this] (char newChar){
+	_serialLink->addNewCharHandler( [this] (char newChar) {
 
-		CI_LOG_I( "Got new char: " << newChar );
+		cout << newChar;
 
 	});
 

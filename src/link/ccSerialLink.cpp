@@ -32,6 +32,12 @@ baudRate( iBaudRate )
 	}
 }
 
+void ccSerialLink::sendInstruction( Instruction instruction )
+{
+	messageQueue.push_back( Instruction::Header );
+	messageQueue.push_back( instruction );
+}
+
 void ccSerialLink::addNewCharHandler(const std::function<void (char)> &iFn){
 
 	newCharHandlers.push_back( iFn );
@@ -150,14 +156,9 @@ void ccSerialLink::setupPDR(){
 	
 	cout << "Setup PDR-870" << endl;
 
-	/// TODO: Document what these codes are/where they come from.
-	messageQueue.push_back( 1 );
-	messageQueue.push_back( '@' );
-	messageQueue.push_back( 1 );
-	messageQueue.push_back( 'A' );
-	messageQueue.push_back( 1 );
-	messageQueue.push_back( 'M' );
-	
+	sendInstruction( Instruction::Clear );
+	sendInstruction( Instruction::Recover_CC1 );
+
 	isPDRSetup = true;
 	
 }
