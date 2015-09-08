@@ -11,6 +11,7 @@
 
 #include "ccSerialLink.h"
 #include <iostream>
+#include "cinder/Utilities.h"
 
 using namespace soso;
 using namespace asio;
@@ -92,34 +93,47 @@ void ccSerialLink::callSerialClosedHandlers(){
 // Wait for data to be receievd via serial port
 void ccSerialLink::listenForSerialData(){
 
-	// Making it a shared pointer so it doesn't get deleted!
-	auto data = make_shared<char>();
-	
 	// if we read 1 byte at a time, seems too slow.  we miss data
-	serial->async_read_some(asio::buffer( data.get(), 1), [this, data] (std::error_code ec, std::size_t) {
+	serial->async_read_some(asio::buffer(_serial_data), [this] (std::error_code ec, std::size_t bytes_read) {
 
-		if (!ec){
-			
-			callNewCharHandlers( *data );
-		
+		if (!ec)
+		{
+			for (auto i = 0; i < bytes_read; i += 1)
+			{
+				callNewCharHandlers( _serial_data.at(i) );
+			}
 
-		// Reset serial timer
-		this->serialTimer = 0;
-		
-		// If we receive serial data, our connection is properly set up
-		if (!isPDRSetup){
-			isPDRSetup = true;
+			auto string_data = _leftover_string_data + string(_serial_data.begin(), _serial_data.begin() + bytes_read);
+			auto separators = " \b\r\n\t\v\f\a.,;:…\0[](){}<>!?\"";
+			auto tokens = ci::split(string_data, separators);
+
+			for (auto i = 0; i < tokens.size() - 1; i += 1)
+			{
+				auto &w = tokens.at(i);
+				if (! w.empty())
+				{
+					_signal_new_word.emit(tokens.at(i));
+				}
+			}
+			_leftover_string_data = tokens.back();
+
+
+			// Reset serial timer
+			this->serialTimer = 0;
+
+			// If we receive serial data, our connection is properly set up
+			if (!isPDRSetup)
+			{
+				isPDRSetup = true;
+			}
 		}
-		
-		}else{
-			
-			cout << "Error receiving serial data " << ec << endl;
-			
+		else
+		{
+			cout << "Error receiving serial data " << ec.message() << endl;
 		}
-		
+
 		// Keep listening for serial data
 		this->listenForSerialData();
-		
 	});
 }
 
