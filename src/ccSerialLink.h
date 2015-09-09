@@ -37,8 +37,10 @@ public:
 	bool	getIsSerialConnected();
 	float getSecondsSinceDataReceived(){ return serialTimer; }
 
+#if defined(CINDER_CINDER)
 	/// Returns the signal emitted when a new word is found.
 	auto& getSignalNewWord() { return _signal_new_word; }
+#endif
 
 	void update();
 
@@ -67,8 +69,9 @@ private:
 	std::vector< const std::function<void ()> > serialIdleHandlers;
 	std::vector< const std::function<void ()> > serialClosedHandlers;
 
-
+#if defined(CINDER_CINDER)
 	ci::signals::Signal<void (const std::string &)>	_signal_new_word;
+#endif
 
 	bool calledSetup = false;
 
