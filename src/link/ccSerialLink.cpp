@@ -60,12 +60,12 @@ void ccSerialLink::sendInstruction( Instruction instruction )
 	messageQueue.push_back( instruction );
 }
 
-void ccSerialLink::addNewCharHandler(const std::function<void (char)> &iFn){
+void ccSerialLink::addNewCharHandler(const std::function<void (std::string)> &iFn){
 
 	newCharHandlers.push_back( iFn );
 }
 
-void ccSerialLink::addNewCharPairHandler(const std::function<void (char, char)> &iFn){
+void ccSerialLink::addNewCharPairHandler(const std::function<void (std::string, std::string)> &iFn){
 	
 	newCharPairHandlers.push_back( iFn );
 }
@@ -122,7 +122,7 @@ void ccSerialLink::handleNewRawChar(char iNewChar){
 		if ( iNewChar == ' '){
 			
 			if (charBuffer.size() > 1){
-				if (charBuffer.back() == ' '){
+				if (charBuffer.back() == " "){
 					doubleSpace = true;
 					
 				}
@@ -134,10 +134,12 @@ void ccSerialLink::handleNewRawChar(char iNewChar){
 			
 			secondCharFlag = !secondCharFlag;
 			
-			charBuffer.push_back( iNewChar );
+			// First convert closed caption code to string
+			string captionString = closed_caption_to_string( iNewChar );
+			charBuffer.push_back( captionString );
 			
 			// Call char handler for individual chars
-			callNewCharHandlers( iNewChar );
+			callNewCharHandlers( captionString );
 			
 			if (charBuffer.size() > 2){
 				
@@ -161,7 +163,7 @@ void ccSerialLink::callSetupHandlers(){
 	}
 }
 
-void ccSerialLink::callNewCharHandlers(char iNewChar){
+void ccSerialLink::callNewCharHandlers(std::string iNewChar){
 	
 	for (auto f : newCharHandlers){
 		
@@ -175,7 +177,7 @@ void ccSerialLink::callNewCharHandlers(char iNewChar){
 	}
 }
 
-void ccSerialLink::callNewCharPairHandlers(char iChar1, char iChar2){
+void ccSerialLink::callNewCharPairHandlers(std::string iChar1, std::string iChar2){
 	
 	for (auto f : newCharPairHandlers){
 		

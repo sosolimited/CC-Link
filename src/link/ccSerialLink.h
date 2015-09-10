@@ -9,6 +9,7 @@
 #pragma once
 
 #include <string>
+#include "ClosedCaptionConversions.hpp"
 
 #ifdef CINDER_CINDER
 	#include "asio/asio.hpp"
@@ -55,8 +56,8 @@ public:
 
 	void sendInstruction( Instruction instruction );
 
-	void addNewCharHandler( const std::function<void (char)> &iFn );
-	void addNewCharPairHandler( const std::function<void (char, char)> &iFn);
+	void addNewCharHandler( const std::function<void (std::string)> &iFn );
+	void addNewCharPairHandler( const std::function<void (std::string, std::string)> &iFn);
 	
 	void addSetupHandler( const std::function<void ()> &iFn );
 	void addSerialIdleHandler( const std::function<void ()> &iFn );
@@ -80,8 +81,8 @@ private:
 	void handleNewRawChar( char iNewChar );
 	
 	void callSetupHandlers();
-	void callNewCharHandlers(char iNewChar);
-	void callNewCharPairHandlers(char iChar1, char iChar2);
+	void callNewCharHandlers(std::string iNewChar);
+	void callNewCharPairHandlers(std::string iChar1, std::string iChar2);
 	void callSerialIdleHandlers();
 	void callSerialClosedHandlers();
 
@@ -100,8 +101,8 @@ private:
 	asio::io_service &appIOService;
 
 	std::vector< const std::function<void ()> >setupHandlers;
-	std::vector< const std::function<void (char)> > newCharHandlers;
-	std::vector< const std::function<void (char, char)> > newCharPairHandlers;
+	std::vector< const std::function<void (std::string)> > newCharHandlers;
+	std::vector< const std::function<void (std::string, std::string)> > newCharPairHandlers;
 	std::vector< const std::function<void ()> > serialIdleHandlers;
 	std::vector< const std::function<void ()> > serialClosedHandlers;
 
@@ -135,7 +136,7 @@ private:
 	
 	bool secondCharFlag = false;
 	
-	std::deque<char> charBuffer;
+	std::deque<std::string> charBuffer;
 };
 
 } // namespace soso

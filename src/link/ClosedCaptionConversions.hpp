@@ -105,7 +105,8 @@ const auto closed_caption_to_string = ([] () {
 
   return [mapping] (char cc_character) {
     return mapping.at(cc_character);
-  }
+	};
+	
 }());
 
 ///
@@ -118,7 +119,6 @@ bool is_eia_char(char c)
     }
 }
 
-bool
 
 
 // ignore control sequnences
