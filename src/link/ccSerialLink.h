@@ -30,6 +30,7 @@ public:
 	enum Instruction
 	{
 		Header = 0x01,
+		About = 0x3F, // Get CC box version, vendor information
 		Clear = 0x40,
 		// Recover roughly means decode closed captioning from.
 		Recover_CC1 = 0x41,
@@ -50,10 +51,13 @@ public:
 		// Some instructions have been omitted
 		// For full listing, see PDR-870 Manual
 	};
+	
 
 	void sendInstruction( Instruction instruction );
 
 	void addNewCharHandler( const std::function<void (char)> &iFn );
+	void addNewCharPairHandler( const std::function<void (char, char)> &iFn);
+	
 	void addSetupHandler( const std::function<void ()> &iFn );
 	void addSerialIdleHandler( const std::function<void ()> &iFn );
 	void addSerialClosedHandler( const std::function<void ()> &iFn );
@@ -69,8 +73,15 @@ public:
 	void update();
 
 private:
+
+	bool isEndOfLineCommand( int iCode );
+	bool isControlCode( int iCode );
+
+	void handleNewRawChar( char iNewChar );
+	
 	void callSetupHandlers();
 	void callNewCharHandlers(char iNewChar);
+	void callNewCharPairHandlers(char iChar1, char iChar2);
 	void callSerialIdleHandlers();
 	void callSerialClosedHandlers();
 
@@ -90,6 +101,7 @@ private:
 
 	std::vector< const std::function<void ()> >setupHandlers;
 	std::vector< const std::function<void (char)> > newCharHandlers;
+	std::vector< const std::function<void (char, char)> > newCharPairHandlers;
 	std::vector< const std::function<void ()> > serialIdleHandlers;
 	std::vector< const std::function<void ()> > serialClosedHandlers;
 
@@ -114,6 +126,16 @@ private:
 	std::string						_leftover_string_data;
 
 	std::chrono::high_resolution_clock::time_point previousUpdateTime;
+	
+	bool controlFlag = false;
+	
+	std::vector<int> controlCodeHeaders;
+	
+	std::vector<char> _cc_end_line_commands;
+	
+	bool secondCharFlag = false;
+	
+	std::deque<char> charBuffer;
 };
 
 } // namespace soso

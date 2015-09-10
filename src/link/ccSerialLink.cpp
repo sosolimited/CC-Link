@@ -30,6 +30,28 @@ baudRate( iBaudRate )
 		// Gets rid of any data left over in serial buffer from previous sessions.
 		::tcflush(serial->lowest_layer().native_handle(), TCIOFLUSH);
 	}
+	
+	// Known control code characters
+	controlCodeHeaders.push_back( 0x14 );	// Indicates CC Control Following
+	controlCodeHeaders.push_back( 0x11 ); // Indicates special characters following
+	controlCodeHeaders.push_back( 0x17 ); // Switch character sets
+	
+	// May be relevant only on other channels
+	controlCodeHeaders.push_back( 0x12 );
+	controlCodeHeaders.push_back( 0x1A );
+	controlCodeHeaders.push_back( 0x13 );
+	controlCodeHeaders.push_back( 0x1B );
+	controlCodeHeaders.push_back( 0x19 );
+	controlCodeHeaders.push_back( 0x1C );
+	controlCodeHeaders.push_back( 0x15 );
+	controlCodeHeaders.push_back( 0x1D );
+	controlCodeHeaders.push_back( 0x1F );
+	
+	
+//	_cc_end_line_commands.push_back( 0x20 ); // Resume caption loading
+//	_cc_end_line_commands.push_back( 0x29 ); // Resume direct captioning
+//	_cc_end_line_commands.push_back( 0x2c ); // Erase display memory (clear screen)
+	
 }
 
 void ccSerialLink::sendInstruction( Instruction instruction )
@@ -41,6 +63,11 @@ void ccSerialLink::sendInstruction( Instruction instruction )
 void ccSerialLink::addNewCharHandler(const std::function<void (char)> &iFn){
 
 	newCharHandlers.push_back( iFn );
+}
+
+void ccSerialLink::addNewCharPairHandler(const std::function<void (char, char)> &iFn){
+	
+	newCharPairHandlers.push_back( iFn );
 }
 
 void ccSerialLink::addSetupHandler(const std::function<void ()> &iFn){
@@ -58,6 +85,74 @@ void ccSerialLink::addSerialClosedHandler(const std::function<void ()> &iFn){
 	serialClosedHandlers.push_back( iFn );
 }
 
+// Handle raw incoming characters
+// Parse out control codes, inserts spaces on line breakks
+void ccSerialLink::handleNewRawChar(char iNewChar){
+	
+	bool sendChar = true;
+	int charNum = int(iNewChar);
+	
+	if (controlFlag){
+		
+		controlFlag = false;
+		
+//		if (isEndOfLineCommand( charNum )){
+//			
+			iNewChar = ' ';
+			
+//		}else{
+//			sendChar = false;
+//		}
+		
+	} else if (isControlCode( charNum )){
+
+		controlFlag = true;
+		sendChar = false;
+		
+	// Don't send non-printable ASCII codes for now
+	}else if (charNum < 32){
+		
+		sendChar = false;
+	}
+
+	if (sendChar){
+		
+		bool doubleSpace = false;
+
+		if ( iNewChar == ' '){
+			
+			if (charBuffer.size() > 1){
+				if (charBuffer.back() == ' '){
+					doubleSpace = true;
+					
+				}
+			}
+		}
+		
+		// If two spaces occur in a row, don't add second space to buffer
+		if (!doubleSpace){
+			
+			secondCharFlag = !secondCharFlag;
+			
+			charBuffer.push_back( iNewChar );
+			
+			// Call char handler for individual chars
+			callNewCharHandlers( iNewChar );
+			
+			if (charBuffer.size() > 2){
+				
+				charBuffer.pop_front();
+			}
+			
+			// Call char handler for 2 chars
+			if (secondCharFlag){
+				
+				callNewCharPairHandlers( charBuffer.front(), charBuffer.back() );
+				
+			}
+		}
+	}
+}
 
 void ccSerialLink::callSetupHandlers(){
 
@@ -67,7 +162,7 @@ void ccSerialLink::callSetupHandlers(){
 }
 
 void ccSerialLink::callNewCharHandlers(char iNewChar){
-
+	
 	for (auto f : newCharHandlers){
 		
 		auto boundFunction = [f, iNewChar] () {
@@ -77,6 +172,14 @@ void ccSerialLink::callNewCharHandlers(char iNewChar){
 		};
 		
 		appIOService.post( boundFunction );
+	}
+}
+
+void ccSerialLink::callNewCharPairHandlers(char iChar1, char iChar2){
+	
+	for (auto f : newCharPairHandlers){
+		
+		f( iChar1, iChar2 );
 	}
 }
 
@@ -96,6 +199,33 @@ void ccSerialLink::callSerialClosedHandlers(){
 	}
 }
 
+// 0x14 denotes command on CC1
+// 0x11 denotes use of special char
+bool ccSerialLink::isControlCode(int iCode){
+	
+	for (auto cc : controlCodeHeaders ){
+		
+		if (iCode == cc){
+			return true;
+		}
+	}
+	return false;
+}
+
+// Commands are between 0x20 and 0x2F
+bool ccSerialLink::isEndOfLineCommand(int iCode){
+	
+//	cout << "code: " << iCode << endl;
+//	
+//	// 32, 47
+//	if ((iCode >= 0x20) && (iCode <= 0x2F)){
+//		
+//		cout << "yes" << endl;
+		return true;
+//	}
+//	return false;
+}
+
 // Wait for data to be receievd via serial port
 void ccSerialLink::listenForSerialData(){
 
@@ -106,7 +236,8 @@ void ccSerialLink::listenForSerialData(){
 		{
 			for (auto i = 0; i < bytes_read; i += 1)
 			{
-				callNewCharHandlers( _serial_data.at(i) );
+//				callNewCharHandlers( _serial_data.at(i) );
+				handleNewRawChar( _serial_data.at(i) );
 			}
 
 			auto string_data = _leftover_string_data + string(_serial_data.begin(), _serial_data.begin() + bytes_read);
@@ -146,9 +277,7 @@ void ccSerialLink::listenForSerialData(){
 void ccSerialLink::testPDR(){
 	
 	cout << "Testing PDR-870" << endl;
-
-	messageQueue.push_back( 1 );
-	messageQueue.push_back( '?' );
+	sendInstruction( Instruction::About );
 	
 }
 
@@ -158,6 +287,9 @@ void ccSerialLink::setupPDR(){
 
 	sendInstruction( Instruction::Clear );
 	sendInstruction( Instruction::Recover_CC1 );
+	
+//	sendInstruction( Instruction::Disable_Control_Codes );
+//	sendInstruction( Instruction::Tokenize_Control_Codes );
 
 	isPDRSetup = true;
 	
@@ -200,6 +332,8 @@ void ccSerialLink::update(){
 	}
 	
 	if (serialTimer > serialTimeout){
+		
+		cout << "Attempting to reconnect." << endl;
 		
 		// Attempt to reconnect
 		if (messageQueue.empty()){
