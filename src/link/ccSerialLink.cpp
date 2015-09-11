@@ -25,6 +25,10 @@ baudRate( iBaudRate )
 	serial = make_shared<serial_port>( appIOService, comPort );
 	serial->set_option( serial_port_base::baud_rate( baudRate ) );
 
+	addNewCharHandler([this] (const std::string &str) {
+		handleNewCleanChar(str);
+	});
+
 	if (serial->is_open()){
 		// Flush serial port's input and output data
 		// Gets rid of any data left over in serial buffer from previous sessions.
@@ -156,6 +160,23 @@ void ccSerialLink::handleNewRawChar(char iNewChar){
 	}
 }
 
+void ccSerialLink::handleNewCleanChar(const std::string &str)
+{
+	auto string_data = _leftover_string_data + str;
+	auto separators = " \b\r\n\t\v\f\a.,;:…\0[](){}<>!?\"";
+	auto tokens = ci::split(string_data, separators);
+
+	for (auto i = 0; i < tokens.size() - 1; i += 1)
+	{
+		auto &w = tokens.at(i);
+		if (! w.empty())
+		{
+			_signal_new_word.emit(tokens.at(i));
+		}
+	}
+	_leftover_string_data = tokens.back();
+}
+
 void ccSerialLink::callSetupHandlers(){
 
 	for (auto f : setupHandlers){
@@ -241,21 +262,6 @@ void ccSerialLink::listenForSerialData(){
 //				callNewCharHandlers( _serial_data.at(i) );
 				handleNewRawChar( _serial_data.at(i) );
 			}
-
-			auto string_data = _leftover_string_data + string(_serial_data.begin(), _serial_data.begin() + bytes_read);
-			auto separators = " \b\r\n\t\v\f\a.,;:…\0[](){}<>!?\"";
-			auto tokens = ci::split(string_data, separators);
-
-			for (auto i = 0; i < tokens.size() - 1; i += 1)
-			{
-				auto &w = tokens.at(i);
-				if (! w.empty())
-				{
-					_signal_new_word.emit(tokens.at(i));
-				}
-			}
-			_leftover_string_data = tokens.back();
-
 
 			// Reset serial timer
 			this->serialTimer = 0;

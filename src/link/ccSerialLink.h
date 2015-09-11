@@ -79,6 +79,7 @@ private:
 	bool isControlCode( int iCode );
 
 	void handleNewRawChar( char iNewChar );
+	void handleNewCleanChar(const std::string &str);
 	
 	void callSetupHandlers();
 	void callNewCharHandlers(std::string iNewChar);
