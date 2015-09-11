@@ -12,6 +12,7 @@
 #include "ccSerialLink.h"
 #include <iostream>
 #include "cinder/Utilities.h"
+#include "StringManipulation.h"
 
 using namespace soso;
 using namespace asio;
@@ -171,7 +172,7 @@ void ccSerialLink::handleNewCleanChar(const std::string &str)
 		auto &w = tokens.at(i);
 		if (! w.empty())
 		{
-			_signal_new_word.emit(tokens.at(i));
+			_signal_new_word.emit(strip_punctuation(w));
 		}
 	}
 	_leftover_string_data = tokens.back();
