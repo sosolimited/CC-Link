@@ -1,10 +1,14 @@
+#pragma once
+
+#include <unordered_map>
+
 ///
 /// Returns a UTF-8 formatted string from an EIA-608 character.
 /// EIA 608 encoding from https://en.wikipedia.org/wiki/EIA-608
 /// usage: EIA_608_to_string(char);
 ///
 const auto closed_caption_to_string = ([] () {
-  auto mapping = std::map<char, std::string> {
+  auto mapping = std::unordered_map<char, std::string> {
     {0x20, u8" "}, // "(SP)"
     {0x21, u8"!"},
     {0x22, u8"\""},
@@ -103,22 +107,26 @@ const auto closed_caption_to_string = ([] () {
     {0x7F, u8"\b"} // "SB"
   };
 
-  return [mapping] (char cc_character) {
-    return mapping.at(cc_character);
+  return [mapping] (char cc_character) -> std::string {
+		if (mapping.count(cc_character)) {
+			return mapping.at(cc_character);
+		}
+		else {
+			return u8" ";
+		}
 	};
 	
 }());
 
-///
-///
-///
+/*
 bool is_eia_char(char c)
 {
-    if (c >= 0x20 && c <= 0x7F) {
-        return true;
-    }
+	if (c >= 0x20 && c <= 0x7F) {
+		return true;
+	}
+	return false;
 }
-
+*/
 
 
 // ignore control sequnences
