@@ -7,6 +7,9 @@
 
 #include "catch.hpp"
 #include "ClosedCaptionConversions.hpp"
+#include <fstream>
+
+using namespace std;
 
 TEST_CASE("Character Encoding")
 {
@@ -14,5 +17,13 @@ TEST_CASE("Character Encoding")
 	{
 		auto c = closed_caption_to_string(254);
 		REQUIRE(c == u8" ");
+	}
+
+	SECTION("If an odd character appears, don't try to save file")
+	{
+		auto str = "\231re.txt";
+		cout << "String: " << str << endl;
+		ofstream file(str);
+		file << "Hello, world." << endl;
 	}
 }
