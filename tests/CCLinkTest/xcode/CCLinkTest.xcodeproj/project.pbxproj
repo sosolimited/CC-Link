@@ -18,12 +18,13 @@
 		00B9955B1B128DF400A5C623 /* IOSurface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00B995591B128DF400A5C623 /* IOSurface.framework */; };
 		5323E6B20EAFCA74003A9687 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5323E6B10EAFCA74003A9687 /* CoreVideo.framework */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		9C5F23AA1C15E58B00B8D1B1 /* StringCleaningTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C5F23A91C15E58B00B8D1B1 /* StringCleaningTest.cpp */; };
 		9C68DA961B9F7DC400E58DC6 /* CCLinkTestApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C68DA931B9F7DC400E58DC6 /* CCLinkTestApp.cpp */; };
 		9C68DA991B9F7DC400E58DC6 /* CCLink_tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C68DA951B9F7DC400E58DC6 /* CCLink_tests.cpp */; };
 		9C68DA9F1B9F819800E58DC6 /* ccSerialLink.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C68DA9B1B9F819800E58DC6 /* ccSerialLink.cpp */; };
 		9C68DAA41B9F8BD300E58DC6 /* StringManipulation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C68DAA21B9F8BD300E58DC6 /* StringManipulation.cpp */; };
-		9C9CF5351BB9B9F7003E455B /* CharacterEncoding_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C9CF5341BB9B9F7003E455B /* CharacterEncoding_test.cpp */; settings = {ASSET_TAGS = (); }; };
-		9C9CF5371BB9BA33003E455B /* ControlCode_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C9CF5361BB9BA33003E455B /* ControlCode_test.cpp */; settings = {ASSET_TAGS = (); }; };
+		9C9CF5351BB9B9F7003E455B /* CharacterEncoding_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C9CF5341BB9B9F7003E455B /* CharacterEncoding_test.cpp */; };
+		9C9CF5371BB9BA33003E455B /* ControlCode_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C9CF5361BB9BA33003E455B /* ControlCode_test.cpp */; };
 		C92DF15F91D34281B2A14CEC /* CinderApp.icns in Resources */ = {isa = PBXBuildFile; fileRef = A97F25BA220B4172915C0A75 /* CinderApp.icns */; };
 /* End PBXBuildFile section */
 
@@ -56,6 +57,7 @@
 		542613A3B344432EAAEE946C /* CCLinkTest_Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = "\"\""; path = CCLinkTest_Prefix.pch; sourceTree = "<group>"; };
 		7390B078603A458B94D2C564 /* Resources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Resources.h; path = ../include/Resources.h; sourceTree = "<group>"; };
 		8D1107320486CEB800E47090 /* CCLinkTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CCLinkTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9C5F23A91C15E58B00B8D1B1 /* StringCleaningTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringCleaningTest.cpp; sourceTree = "<group>"; };
 		9C68DA8B1B9F7D3600E58DC6 /* CCLinkUnitTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CCLinkUnitTest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C68DA931B9F7DC400E58DC6 /* CCLinkTestApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCLinkTestApp.cpp; sourceTree = "<group>"; };
 		9C68DA951B9F7DC400E58DC6 /* CCLink_tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCLink_tests.cpp; sourceTree = "<group>"; };
@@ -202,6 +204,7 @@
 				9C68DA951B9F7DC400E58DC6 /* CCLink_tests.cpp */,
 				9C9CF5341BB9B9F7003E455B /* CharacterEncoding_test.cpp */,
 				9C9CF5361BB9BA33003E455B /* ControlCode_test.cpp */,
+				9C5F23A91C15E58B00B8D1B1 /* StringCleaningTest.cpp */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -315,6 +318,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C5F23AA1C15E58B00B8D1B1 /* StringCleaningTest.cpp in Sources */,
 				9C9CF5371BB9BA33003E455B /* ControlCode_test.cpp in Sources */,
 				9C68DA991B9F7DC400E58DC6 /* CCLink_tests.cpp in Sources */,
 				9C68DAA41B9F8BD300E58DC6 /* StringManipulation.cpp in Sources */,

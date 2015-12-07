@@ -172,7 +172,7 @@ void ccSerialLink::handleNewCleanChar(const std::string &str)
 		auto &w = tokens.at(i);
 		if (! w.empty())
 		{
-			_signal_new_word.emit(strip_punctuation(w));
+			_signal_new_word.emit(trim_unmatched_brackets(strip_punctuation(w)));
 		}
 	}
 	_leftover_string_data = tokens.back();
