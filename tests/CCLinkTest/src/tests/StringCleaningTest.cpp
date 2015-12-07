@@ -10,9 +10,9 @@
 
 using namespace std;
 
-TEST_CASE("StringCleaningTest")
+TEST_CASE("StringManipulation")
 {
-	SECTION("trim_unmatched_brackets removes leading or trailing brackets as needed.")
+	SECTION("Leading and trailing brackets without an opposite match are removed")
 	{
 		auto insides = string("whatever");
 		auto test_prefix = [insides] (const string &prefix) {
@@ -34,7 +34,7 @@ TEST_CASE("StringCleaningTest")
 		test_suffix(")");
 	}
 
-	SECTION("trim_unmatched_brackets leaves in brackets that are matched")
+	SECTION("Matched brackets are kept")
 	{
 		auto insides = string("whatever");
 		auto test_matched = [insides] (const string &prefix, const string &suffix) {
@@ -45,15 +45,29 @@ TEST_CASE("StringCleaningTest")
 		test_matched("[", "]");
 		test_matched("{", "}");
 		test_matched("(", ")");
+	}
 
+	SECTION("Mismatched brackets are removed")
+	{
+		auto insides = string("goodies");
 		auto miswrapped = "{" + insides + "]";
 		REQUIRE(soso::trim_unmatched_brackets(miswrapped) == insides);
 	}
 
-	SECTION("strip_punctuation removes leading and trailing (western) punctuation")
+	SECTION("Leading and trailing (western) punctuation is completely removed by strip_punctuation")
 	{
 		auto insides = string("stuff");
-		auto dots = "." + insides + ".";
+		auto dots = "." + insides + "...";
 		REQUIRE(soso::strip_punctuation(dots) == insides);
+
+		auto single_char = string("a");
+		dots = "." + single_char + ".";
+		REQUIRE(soso::strip_punctuation(dots) == single_char);
+	}
+
+	SECTION("Punctuation-only lines become empty strings")
+	{
+		auto punctuation = "..,\'.";
+		REQUIRE(soso::strip_punctuation(punctuation) == "");
 	}
 }
