@@ -67,6 +67,8 @@ public:
     auto &getSignalNewWord() { return _signal_new_word; }
     void  update();
 
+    void enableSpecialChars(bool enable) { specialCharsEnabled = enable; }
+	
 private:
     static bool isDoubleCharHeader(char iCode);
     static bool isSpecialCharHeader(char iCode);
@@ -125,6 +127,7 @@ private:
     bool specialCharFlag = false;
 
     bool secondCharFlag = false;
+    bool specialCharsEnabled = false;
 
     std::deque<std::string> charBuffer;
 };

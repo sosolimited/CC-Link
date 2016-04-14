@@ -24,9 +24,8 @@ ccSerialLink::ccSerialLink(io_service &iService, const string &iComPort, int iBa
       comPort(iComPort),
       baudRate(iBaudRate)
 {
-        serial = make_shared<serial_port>(appIOService, comPort);
-        serial->set_option(serial_port_base::baud_rate(baudRate));
-  
+    serial = make_shared<serial_port>(appIOService, comPort);
+    serial->set_option(serial_port_base::baud_rate(baudRate));
 
     addNewCharHandler([this](const std::string &str) {
         handleNewCleanChar(str);
@@ -77,7 +76,12 @@ void ccSerialLink::handleNewRawChar(char newChar)
     // Did the previous byte indicate a double char?
     if (specialCharFlag) {
         // check if it's a special char.
-        to_send = special_closed_caption_to_string(newChar);
+        if (specialCharsEnabled) {
+            to_send = special_closed_caption_to_string(newChar);
+        }
+        else {
+            to_send = " ";
+        }
     }
     else if (doubleCharFlag) {
         to_send = " ";
@@ -116,6 +120,7 @@ void ccSerialLink::handleNewRawChar(char newChar)
         }
     }
     doubleCharFlag = false;
+    specialCharFlag = false;
 }
 
 void ccSerialLink::handleNewCleanChar(const std::string &str)
@@ -181,7 +186,6 @@ bool ccSerialLink::isSpecialCharHeader(char iCode)
     }
     return false;
 }
-
 
 // Wait for data to be receievd via serial port
 void ccSerialLink::listenForSerialData()
