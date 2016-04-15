@@ -2,6 +2,9 @@
 
 #include <unordered_map>
 
+const std::vector<char> double_byte_headers = { { 0x11, 0x19, 0x14, 0x17, 0x1C, 0x1F } };
+const std::vector<char> special_char_headers = { { 0x11, 0x19 } };
+
 ///
 /// Returns a UTF-8 formatted string from an EIA-608 character.
 /// EIA 608 encoding from https://en.wikipedia.org/wiki/EIA-608
@@ -118,6 +121,38 @@ const auto closed_caption_to_string = ([] () {
 	
 }());
 
+const auto special_closed_caption_to_string = ([] () {
+	auto mapping = std::unordered_map<char, std::string> {
+		{0x30, u8"®"}, // Registered Mark Symbol
+		{0x31, u8"°"},			// Degree sign
+		{0x32, u8"½"},			// 1/2 mark
+		{0x33, u8"¿"},			// Inverse question mark
+		{0x34, u8"™"},			// Trademark symbol
+		{0x35, u8"¢"},			// Cents sign
+		{0x36, u8"£"},			// Pounds Sterling symbol
+		{0x37, u8"♪"},			// Music note
+		{0x38, u8"à"},			// Lower case a with accent grave
+//		{0x39, u8")"},			// Transparent space
+		{0x3A, u8"è"},			// Lower case e with accent grave
+		{0x3B, u8"â"},			// Lower case a with circumflex
+		{0x3C, u8"ê"},			// Lower case e with circumflex
+		{0x3D, u8"î"},			// Lower case i with circumflex
+		{0x3E, u8"ô"},			// Lower case o with circumflex
+		{0x3F, u8"û"}				// Lower case u with circumflex
+	};
+	
+	return [mapping] (char cc_character) -> std::string {
+		if (mapping.count(cc_character)) {
+			return mapping.at(cc_character);
+		}
+		else {
+			return u8" ";
+		}
+	};
+	
+}());
+
+
 /*
 bool is_eia_char(char c)
 {
@@ -127,13 +162,3 @@ bool is_eia_char(char c)
 	return false;
 }
 */
-
-
-// ignore control sequnences
-// make it a space
-// never place more than 1 space
-
-// convert line breaks to space
-// but not twice in a row
-// never allow multiple spaces
-// if last_char == 32  32,10,13 >> 32
