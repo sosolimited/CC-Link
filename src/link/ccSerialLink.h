@@ -68,13 +68,12 @@ public:
     void  update();
 
     void enableSpecialChars(bool enable) { specialCharsEnabled = enable; }
-	
 private:
     bool isDoubleCharHeader(char iCode);
     bool isSpecialCharHeader(char iCode);
 
     void handleNewRawChar(char iNewChar);
-		void fillCharBuffer( const std::string &to_send);
+    void fillCharBuffer(const std::string &to_send);
     void handleNewCleanChar(const std::string &str);
 
     void callSetupHandlers();
@@ -131,7 +130,6 @@ private:
     bool specialCharsEnabled = false;
 
     std::deque<std::string> charBuffer;
-
 };
 
 } // namespace soso
