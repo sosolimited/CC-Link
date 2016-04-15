@@ -73,9 +73,8 @@ void ccSerialLink::handleNewRawChar(char newChar)
 {
     string to_send = " ";
 
-    // Did the previous byte indicate a double char?
+    // Did the previous byte indicate a special character?
     if (specialCharFlag) {
-        // check if it's a special char.
         if (specialCharsEnabled) {
             to_send = special_closed_caption_to_string(newChar);
         }
@@ -86,6 +85,7 @@ void ccSerialLink::handleNewRawChar(char newChar)
         to_send = " ";
     }
     else if (isDoubleCharHeader(newChar)) {
+				// Special char headers are subset of control headers
         specialCharFlag = isSpecialCharHeader(newChar);
         doubleCharFlag = true;
         return;
@@ -94,33 +94,46 @@ void ccSerialLink::handleNewRawChar(char newChar)
         to_send = closed_caption_to_string(newChar);
     }
 
-    bool doubleSpace = false;
+		fillCharBuffer(to_send);
 
-    if (to_send == " ") {
-        if (charBuffer.size() > 1) {
-            if (charBuffer.back() == " ") {
-                doubleSpace = true;
-            }
-        }
-    }
-
-    if (!doubleSpace) {
-        secondCharFlag = !secondCharFlag;
-        charBuffer.push_back(to_send);
-        callNewCharHandlers(to_send);
-
-        if (charBuffer.size() > 2) {
-            charBuffer.pop_front();
-        }
-
-        // Call char handler for 2 chars
-        if (secondCharFlag) {
-            callNewCharPairHandlers(charBuffer.front(), charBuffer.back());
-        }
-    }
     doubleCharFlag = false;
     specialCharFlag = false;
 
+}
+
+// Strip double space and space after apostrophes
+// Could expand to remove space before final punctuation
+void ccSerialLink::fillCharBuffer(const std::string &to_send){
+
+	bool doubleSpace = false;
+	bool hasApostrophe = false;
+
+	if (to_send == " "){
+
+		if (charBuffer.size() > 1) {
+			if (charBuffer.back() == " ") {
+				doubleSpace = true;
+			}
+
+			if (charBuffer.back() == "'") {
+				hasApostrophe = true;
+			}
+		}
+	}
+	if ((!doubleSpace)&&(!hasApostrophe)){
+		secondCharFlag = !secondCharFlag;
+		charBuffer.push_back(to_send);
+		callNewCharHandlers(to_send);
+
+		if (charBuffer.size() > 2) {
+			charBuffer.pop_front();
+		}
+
+		// Call char handler for 2 chars
+		if (secondCharFlag) {
+			callNewCharPairHandlers(charBuffer.front(), charBuffer.back());
+		}
+	}
 }
 
 void ccSerialLink::handleNewCleanChar(const std::string &str)
