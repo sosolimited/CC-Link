@@ -162,13 +162,3 @@ bool is_eia_char(char c)
 	return false;
 }
 */
-
-
-// ignore control sequnences
-// make it a space
-// never place more than 1 space
-
-// convert line breaks to space
-// but not twice in a row
-// never allow multiple spaces
-// if last_char == 32  32,10,13 >> 32

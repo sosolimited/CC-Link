@@ -71,7 +71,7 @@ void ccSerialLink::addSerialClosedHandler(const std::function<void()> &iFn)
 
 void ccSerialLink::handleNewRawChar(char newChar)
 {
-    string to_send = "";
+    string to_send = " ";
 
     // Did the previous byte indicate a double char?
     if (specialCharFlag) {
@@ -79,11 +79,10 @@ void ccSerialLink::handleNewRawChar(char newChar)
         if (specialCharsEnabled) {
             to_send = special_closed_caption_to_string(newChar);
         }
-        else {
-            to_send = " ";
-        }
     }
+		// Indicates control codes or special characters
     else if (doubleCharFlag) {
+				// Replace control codes with spaces
         to_send = " ";
     }
     else if (isDoubleCharHeader(newChar)) {
@@ -121,6 +120,7 @@ void ccSerialLink::handleNewRawChar(char newChar)
     }
     doubleCharFlag = false;
     specialCharFlag = false;
+
 }
 
 void ccSerialLink::handleNewCleanChar(const std::string &str)
@@ -179,12 +179,24 @@ void ccSerialLink::callSerialClosedHandlers()
     }
 }
 
+// The first byte of two byte sequences indicating
+// special characters
 bool ccSerialLink::isSpecialCharHeader(char iCode)
 {
     if ((iCode == 0x11) || (iCode == 0x19)) {
         return true;
     }
     return false;
+}
+
+// According to protocol, the first byte of control
+// headers is always between 0x10 and 0x1F
+bool ccSerialLink::isDoubleCharHeader(char iCode)
+{
+	if ((iCode >= 0x10) && (iCode <= 0x1F)) {
+		return true;
+	}
+	return false;
 }
 
 // Wait for data to be receievd via serial port
