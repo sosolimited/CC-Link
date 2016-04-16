@@ -74,7 +74,7 @@ private:
     bool isSpecialCharHeader(char iCode);
 
     void handleNewRawChar(char iNewChar);
-		void fillCharBuffer( const std::string &to_send);
+		void fillCharBuffer( std::string &to_send);
     void handleNewCleanChar(const std::string &str);
 
     void callSetupHandlers();

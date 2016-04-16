@@ -71,7 +71,7 @@ void ccSerialLink::addSerialClosedHandler(const std::function<void()> &iFn)
 
 void ccSerialLink::handleNewRawChar(char newChar)
 {
-    string to_send = " ";
+    string to_send = "";
 
     // Did the previous byte indicate a special character?
     if (specialCharFlag) {
@@ -82,7 +82,7 @@ void ccSerialLink::handleNewRawChar(char newChar)
 		// Indicates control codes or special characters
     else if (doubleCharFlag) {
 				// Replace control codes with spaces
-        to_send = " ";
+        to_send = control_code_to_string(newChar);
     }
     else if (isDoubleCharHeader(newChar)) {
 				// Special char headers are subset of control headers
@@ -94,7 +94,10 @@ void ccSerialLink::handleNewRawChar(char newChar)
         to_send = closed_caption_to_string(newChar);
     }
 
+	// Don't add empty chars to buffer!
+	if (to_send.size() > 0){
 		fillCharBuffer(to_send);
+	}
 
     doubleCharFlag = false;
     specialCharFlag = false;
@@ -103,24 +106,20 @@ void ccSerialLink::handleNewRawChar(char newChar)
 
 // Strip double space and space after apostrophes
 // Could expand to remove space before final punctuation
-void ccSerialLink::fillCharBuffer(const std::string &to_send){
+void ccSerialLink::fillCharBuffer(std::string &to_send){
 
 	bool doubleSpace = false;
-	bool hasApostrophe = false;
 
-	if (to_send == " "){
-
+	if (to_send.compare(" ") == 0){
 		if (charBuffer.size() > 1) {
-			if (charBuffer.back() == " ") {
+			if (charBuffer.back().compare(" ") == 0 ){
 				doubleSpace = true;
-			}
-
-			if (charBuffer.back() == "'") {
-				hasApostrophe = true;
 			}
 		}
 	}
-	if ((!doubleSpace)&&(!hasApostrophe)){
+
+	if ((!doubleSpace)){
+
 		secondCharFlag = !secondCharFlag;
 		charBuffer.push_back(to_send);
 		callNewCharHandlers(to_send);

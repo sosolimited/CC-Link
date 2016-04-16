@@ -115,7 +115,7 @@ const auto closed_caption_to_string = ([] () {
 			return mapping.at(cc_character);
 		}
 		else {
-			return u8" ";
+			return u8"";
 		}
 	};
 	
@@ -132,7 +132,7 @@ const auto special_closed_caption_to_string = ([] () {
 		{0x36, u8"£"},			// Pounds Sterling symbol
 		{0x37, u8"♪"},			// Music note
 		{0x38, u8"à"},			// Lower case a with accent grave
-//		{0x39, u8")"},			// Transparent space
+		{0x39, u8")"},			// Transparent space
 		{0x3A, u8"è"},			// Lower case e with accent grave
 		{0x3B, u8"â"},			// Lower case a with circumflex
 		{0x3C, u8"ê"},			// Lower case e with circumflex
@@ -146,10 +146,29 @@ const auto special_closed_caption_to_string = ([] () {
 			return mapping.at(cc_character);
 		}
 		else {
-			return u8" ";
+			return u8"";
 		}
 	};
 	
+}());
+
+const auto control_code_to_string = ([] () {
+	auto mapping = std::unordered_map<char, std::string> {
+		{0x2D, u8" "}, // Carriage Return
+		{0x21, u8" "},			// Tab
+		{0x22, u8" "},			// Tab
+		{0x23, u8" "}			// Tab
+	};
+
+	return [mapping] (char cc_character) -> std::string {
+		if (mapping.count(cc_character)) {
+			return mapping.at(cc_character);
+		}
+		else {
+			return u8"";
+		}
+	};
+
 }());
 
 
