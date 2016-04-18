@@ -79,13 +79,13 @@ void ccSerialLink::handleNewRawChar(char newChar)
             to_send = special_closed_caption_to_string(newChar);
         }
     }
-		// Indicates control codes or special characters
+    // Indicates control codes or special characters
     else if (doubleCharFlag) {
-				// Replace control codes with spaces
+        // Replace control codes with spaces
         to_send = control_code_to_string(newChar);
     }
     else if (isDoubleCharHeader(newChar)) {
-				// Special char headers are subset of control headers
+        // Special char headers are subset of control headers
         specialCharFlag = isSpecialCharHeader(newChar);
         doubleCharFlag = true;
         return;
@@ -94,45 +94,43 @@ void ccSerialLink::handleNewRawChar(char newChar)
         to_send = closed_caption_to_string(newChar);
     }
 
-	// Don't add empty chars to buffer!
-	if (to_send.size() > 0){
-		fillCharBuffer(to_send);
-	}
+    // Don't add empty chars to buffer!
+    if (to_send.size() > 0) {
+        fillCharBuffer(to_send);
+    }
 
     doubleCharFlag = false;
     specialCharFlag = false;
-
 }
 
 // Strip double space and space after apostrophes
 // Could expand to remove space before final punctuation
-void ccSerialLink::fillCharBuffer(std::string &to_send){
+void ccSerialLink::fillCharBuffer(std::string &to_send)
+{
+    bool doubleSpace = false;
 
-	bool doubleSpace = false;
+    if (to_send.compare(" ") == 0) {
+        if (charBuffer.size() > 1) {
+            if (charBuffer.back().compare(" ") == 0) {
+                doubleSpace = true;
+            }
+        }
+    }
 
-	if (to_send.compare(" ") == 0){
-		if (charBuffer.size() > 1) {
-			if (charBuffer.back().compare(" ") == 0 ){
-				doubleSpace = true;
-			}
-		}
-	}
+    if ((!doubleSpace)) {
+        secondCharFlag = !secondCharFlag;
+        charBuffer.push_back(to_send);
+        callNewCharHandlers(to_send);
 
-	if ((!doubleSpace)){
+        if (charBuffer.size() > 2) {
+            charBuffer.pop_front();
+        }
 
-		secondCharFlag = !secondCharFlag;
-		charBuffer.push_back(to_send);
-		callNewCharHandlers(to_send);
-
-		if (charBuffer.size() > 2) {
-			charBuffer.pop_front();
-		}
-
-		// Call char handler for 2 chars
-		if (secondCharFlag) {
-			callNewCharPairHandlers(charBuffer.front(), charBuffer.back());
-		}
-	}
+        // Call char handler for 2 chars
+        if (secondCharFlag) {
+            callNewCharPairHandlers(charBuffer.front(), charBuffer.back());
+        }
+    }
 }
 
 void ccSerialLink::handleNewCleanChar(const std::string &str)
@@ -205,10 +203,10 @@ bool ccSerialLink::isSpecialCharHeader(char iCode)
 // headers is always between 0x10 and 0x1F
 bool ccSerialLink::isDoubleCharHeader(char iCode)
 {
-	if ((iCode >= 0x10) && (iCode <= 0x1F)) {
-		return true;
-	}
-	return false;
+    if ((iCode >= 0x10) && (iCode <= 0x1F)) {
+        return true;
+    }
+    return false;
 }
 
 // Wait for data to be receievd via serial port
