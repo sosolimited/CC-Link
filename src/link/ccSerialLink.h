@@ -24,7 +24,7 @@ namespace soso {
 
 class ccSerialLink : public std::enable_shared_from_this<ccSerialLink> {
 public:
-    ccSerialLink(asio::io_service &iService, const std::string &iComPort, int iBaudRate = 9600);
+    ccSerialLink(asio::io_service &iService, const std::string &iComPort, int iBaudRate = 1200);
     ~ccSerialLink() = default;
 
     enum Instruction {
@@ -107,7 +107,7 @@ private:
     bool calledSetup = false;
 
     // Serial information
-    int baudRate = 9600;
+    int baudRate = 1200;
 
     // Timer information
     float currTime = 0;
