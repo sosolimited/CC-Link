@@ -32,7 +32,7 @@ void CCLinkTestApp::setup()
 	_output_stream = make_unique<ofstream>((getAssetPath("") / "closed_captioning.txt").string());
 
 	_font = gl::TextureFont::create(Font("Arial", 14));
-	_serialLink = std::make_shared<ccSerialLink>( io_service(), "/dev/tty.usbserial-AL00APKE", 9600 );
+	_serialLink = std::make_shared<ccSerialLink>( io_service(), "/dev/tty.usbserial-A501IIKV", 1200 );
 
 
 	_serialLink->addNewCharPairHandler( [this] (std::string iChar1, std::string iChar2) {
