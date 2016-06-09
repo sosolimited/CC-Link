@@ -168,8 +168,44 @@ const auto control_code_to_string = ([]() {
         { 0x2B, u8" " }, // Resume Text Display
         { 0x2C, u8" " }, // Erase Displayed Memory
         { 0x2D, u8" " }, // Carriage Return
-        { 0x2E, u8" " },
-        { 0x2F, u8" " }
+        { 0x2E, u8" " }, // Memory reset
+        { 0x2F, u8" " },
+        { 0x4E, u8" " }, // Italics
+        { 0x4F, u8" " }, // Italics
+        { 0x50, u8" " }, // This and below indents
+        { 0x51, u8" " },
+        { 0x52, u8" " },
+        { 0x53, u8" " },
+        { 0x54, u8" " },
+        { 0x55, u8" " },
+        { 0x56, u8" " },
+        { 0x57, u8" " },
+        { 0x58, u8" " },
+        { 0x59, u8" " },
+        { 0x5A, u8" " },
+        { 0x5B, u8" " },
+        { 0x5C, u8" " },
+        { 0x5D, u8" " },
+        { 0x5E, u8" " },
+        { 0x5F, u8" " },
+        { 0x6E, u8" " }, // Italics
+        { 0x6F, u8" " }, // Italics
+        { 0x70, u8" " },
+        { 0x71, u8" " },
+        { 0x72, u8" " },
+        { 0x73, u8" " },
+        { 0x74, u8" " },
+        { 0x75, u8" " },
+        { 0x76, u8" " },
+        { 0x77, u8" " },
+        { 0x78, u8" " },
+        { 0x79, u8" " },
+        { 0x7A, u8" " },
+        { 0x7B, u8" " },
+        { 0x7C, u8" " },
+        { 0x7D, u8" " },
+        { 0x7E, u8" " },
+        { 0x7F, u8" " }
     };
 
     return [mapping](char cc_character) -> std::string {
