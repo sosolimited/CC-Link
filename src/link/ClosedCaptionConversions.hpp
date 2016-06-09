@@ -158,16 +158,54 @@ const auto control_code_to_string = ([]() {
         { 0x21, u8" " }, // Backspace
         { 0x22, u8" " }, // Tab
         { 0x23, u8" " }, // Tab
-				{ 0x24, u8" " }, // Delete to End of Row
-				{ 0x25, u8" " }, // Roll-Up Captions–2 Rows
-				{ 0x26, u8" " }, // Roll-Up Captions–3 Rows
-				{ 0x27, u8" " }, // Roll-Up Captions–4 Rows
-				{ 0x28, u8" " }, // Flash On
-				{ 0x29, u8" " }, // Resume Direct Captioning
-				{ 0x2A, u8" " }, // Text Restart
-				{ 0x2B, u8" " }, // Resume Text Display
-				{ 0x2C, u8" " }, // Erase Displayed Memory
-				{ 0x2D, u8" " }  // Carriage Return
+		{ 0x24, u8" " }, // Delete to End of Row
+		{ 0x25, u8" " }, // Roll-Up Captions–2 Rows
+        { 0x26, u8" " }, // Roll-Up Captions–3 Rows
+        { 0x27, u8" " }, // Roll-Up Captions–4 Rows
+        { 0x28, u8" " }, // Flash On
+        { 0x29, u8" " }, // Resume Direct Captioning
+        { 0x2A, u8" " }, // Text Restart
+        { 0x2B, u8" " }, // Resume Text Display
+        { 0x2C, u8" " }, // Erase Displayed Memory
+        { 0x2D, u8" " }, // Carriage Return
+        { 0x2E, u8" " }, // Memory reset
+        { 0x2F, u8" " },
+        { 0x4E, u8" " }, // Italics
+        { 0x4F, u8" " }, // Italics
+        { 0x50, u8" " }, // This and below indents
+        { 0x51, u8" " },
+        { 0x52, u8" " },
+        { 0x53, u8" " },
+        { 0x54, u8" " },
+        { 0x55, u8" " },
+        { 0x56, u8" " },
+        { 0x57, u8" " },
+        { 0x58, u8" " },
+        { 0x59, u8" " },
+        { 0x5A, u8" " },
+        { 0x5B, u8" " },
+        { 0x5C, u8" " },
+        { 0x5D, u8" " },
+        { 0x5E, u8" " },
+        { 0x5F, u8" " },
+        { 0x6E, u8" " }, // Italics
+        { 0x6F, u8" " }, // Italics
+        { 0x70, u8" " },
+        { 0x71, u8" " },
+        { 0x72, u8" " },
+        { 0x73, u8" " },
+        { 0x74, u8" " },
+        { 0x75, u8" " },
+        { 0x76, u8" " },
+        { 0x77, u8" " },
+        { 0x78, u8" " },
+        { 0x79, u8" " },
+        { 0x7A, u8" " },
+        { 0x7B, u8" " },
+        { 0x7C, u8" " },
+        { 0x7D, u8" " },
+        { 0x7E, u8" " },
+        { 0x7F, u8" " }
     };
 
     return [mapping](char cc_character) -> std::string {
