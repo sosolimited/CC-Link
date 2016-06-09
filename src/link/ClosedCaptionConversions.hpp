@@ -158,16 +158,18 @@ const auto control_code_to_string = ([]() {
         { 0x21, u8" " }, // Backspace
         { 0x22, u8" " }, // Tab
         { 0x23, u8" " }, // Tab
-				{ 0x24, u8" " }, // Delete to End of Row
-				{ 0x25, u8" " }, // Roll-Up Captions–2 Rows
-				{ 0x26, u8" " }, // Roll-Up Captions–3 Rows
-				{ 0x27, u8" " }, // Roll-Up Captions–4 Rows
-				{ 0x28, u8" " }, // Flash On
-				{ 0x29, u8" " }, // Resume Direct Captioning
-				{ 0x2A, u8" " }, // Text Restart
-				{ 0x2B, u8" " }, // Resume Text Display
-				{ 0x2C, u8" " }, // Erase Displayed Memory
-				{ 0x2D, u8" " }  // Carriage Return
+		{ 0x24, u8" " }, // Delete to End of Row
+		{ 0x25, u8" " }, // Roll-Up Captions–2 Rows
+        { 0x26, u8" " }, // Roll-Up Captions–3 Rows
+        { 0x27, u8" " }, // Roll-Up Captions–4 Rows
+        { 0x28, u8" " }, // Flash On
+        { 0x29, u8" " }, // Resume Direct Captioning
+        { 0x2A, u8" " }, // Text Restart
+        { 0x2B, u8" " }, // Resume Text Display
+        { 0x2C, u8" " }, // Erase Displayed Memory
+        { 0x2D, u8" " }, // Carriage Return
+        { 0x2E, u8" " },
+        { 0x2F, u8" " }
     };
 
     return [mapping](char cc_character) -> std::string {
